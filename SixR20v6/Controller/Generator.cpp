@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+﻿///////////////////////////////////////////////////////////////////////////////
 // Generator.cpp
 #include "TcPch.h"
 #pragma hdrstop
@@ -83,6 +83,9 @@ double targetPos[8];
 //double toolParam[8] = { 1,0,0,0,0,0,0,0 };
 double t1, t2, t3;
 int i = 0;
+/*
+تعریف و تبین شود متغیرها در کجا و در چه عملی کاربرد دارند
+*/
 ///////////////////////////////////////////////////////////////////////////////
 CGenerator::CGenerator()
 	: m_Trace(m_TraceLevelMax, m_spSrv)
@@ -190,11 +193,17 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 			actualPos[i] = (static_cast<double>(global.ActualPosition[i])) * trajectory.PulsToDegFactor1[i];
 			targetPos[i] = /*actualPos[i] +*/ (global.GUI_TargetPosition[i]);
 			targetPoints[i].clearAll();
+			/*
+		 فراخوانی شده clearAll  توضیح داده شود برای چه 
+			*/
 			//targetPos[i] = (double)(global.GUI_TargetPosition[i]);
 		}
 		targetPos[6] = global.GUI_TargetPosition[6];
 		targetPos[7] = global.GUI_TargetPosition[7];
 		switch (global.GUI_Manager)
+			/*
+			استعفاده شده m_Inputs.GUI_Manager شرط سوییچ Main در 
+			*/
 		{
 		case 8: //PTP
 			trajectory.PTPList(actualPos, targetPos, targetPoints);
@@ -234,6 +243,9 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 			//nothing
 			break;
 		}
+		/*
+        چیست برای  while توضیح داده شود این حلقه 
+		*/
 		while (targetPoints[0].TrajLength > index_point) {
 			for (i = 0; i < 6; i++) {
 				global.set_dataPoint(i, (long)(targetPoints[i].q[index_point] * (1.0 / trajectory.PulsToDegFactor1[i])));
