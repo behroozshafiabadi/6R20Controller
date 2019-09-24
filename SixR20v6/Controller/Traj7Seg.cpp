@@ -63,6 +63,17 @@ void Traj7Seg::DQinv(double Q1[], double Q[])
 	Q[7] = -Q1[7] + Q1[0] * (Q1[1] * Q1[6] - Q1[2] * Q1[5]) * 2 + Q1[1] * (Q1[1] * Q1[7] - Q1[3] * Q1[5]) * 2 + Q1[2] * (Q1[2] * Q1[7] - Q1[3] * Q1[6]) * 2;
 	//return Q;
 }
+int Traj7Seg::getIndexPre(TrajectoryPointList<double> d1[], double radius)
+{
+	return 0;
+}
+int Traj7Seg::getIndexNext(TrajectoryPointList<double> d2[], double radius)
+{
+	return 0;
+}
+void Traj7Seg::approximation(TrajectoryPointList<double> d1[], TrajectoryPointList<double> d2[], double radius)
+{
+}
 void Traj7Seg::DQmultiply(double Q1[], double Q2[], double out[])
 {
 	out[0] = Q1[0] * Q2[0] - Q1[1] * Q2[1] - Q1[2] * Q2[2] - Q1[3] * Q2[3];

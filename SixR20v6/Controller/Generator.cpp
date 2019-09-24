@@ -83,6 +83,17 @@ double targetPos[8];
 //double toolParam[8] = { 1,0,0,0,0,0,0,0 };
 double t1, t2, t3;
 int i = 0;
+int indexOfGui = 0;
+double P0[8];
+double P1[8];
+double P2[8];
+double P3[4];
+TrajectoryPointList<double> d1[6];
+TrajectoryPointList<double> d2[6];
+TrajectoryPointList<double> d3[6];
+int indexPre = 0;
+int indexNext = 0;
+
 ///////////////////////////////////////////////////////////////////////////////
 CGenerator::CGenerator()
 	: m_Trace(m_TraceLevelMax, m_spSrv)
@@ -190,6 +201,9 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 			actualPos[i] = (static_cast<double>(global.ActualPosition[i])) * trajectory.PulsToDegFactor1[i];
 			targetPos[i] = /*actualPos[i] +*/ (global.GUI_TargetPosition[i]);
 			targetPoints[i].clearAll();
+			d1[i].clearAll();
+			d2[i].clearAll();
+			d3[i].clearAll();
 			//targetPos[i] = (double)(global.GUI_TargetPosition[i]);
 		}
 		targetPos[6] = global.GUI_TargetPosition[6];
@@ -200,24 +214,103 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 			trajectory.PTPList(actualPos, targetPos, targetPoints);
 			break;
 		case 10: //PTP Position XYZ ABC
+			trajectory.PTPCartesian(actualPos, targetPos , targetPoints);
+			break;
+		//case 12: //CIRC
+		//	for (i = 0; i < 6; i++) {
+		//		actualPos[i] = (actualPos[i] * M_PI) / 180.0; //to radian
+		//	}
+		//	trajectory.CIRC(actualPos, trajectory.point2Circ, trajectory.point3Circ, targetPoints);
+		//	break;
+		case 16: //LIN or CIRC
+			while (m_Outputs.GUI_Buff[indexOfGui] != 3) {
+				//if first and calculation p0
+				if (indexOfGui == 0) // first
+				{
+					for (i = 0; i < 6; i++) {
+						P0[i] = actualPos[i]; //degree
+					}
+				}
+				else
+				{
+					for (i = 0; i < 6; i++) {
+						P0[i] = d2[i].q[indexNext]; // degree
+					}
+				}
+				//if for end
+				//{
+				//if (m_Outputs.GUI_Buff[indexOfGui] == 1) // LIN
+				//{
+
+				//}
+				//else if (m_Outputs.GUI_Buff[indexOfGui] == 2) // CIRC
+				//{
+
+				//}
+				//}
+				// fill d1
+				if (m_Outputs.GUI_Buff[indexOfGui] == 1) // LIN
+				{
+					for (i = 0; i < 8; i++) {
+						P1[i] = m_Outputs.GUI_Buff[++indexOfGui];
+					}
+					for (i = 0; i < 6; i++) {
+						P0[i] = (P0[i] * M_PI) / 180.0; //to radian
+					}
+					trajectory.LIN(P0, P1, trajectory.toolParamGlobal, d1);
+				}
+				else if (m_Outputs.GUI_Buff[indexOfGui] == 2) // CIRC
+				{
+					for (i = 0; i < 8; i++) {
+						P1[i] = m_Outputs.GUI_Buff[++indexOfGui]; // xyz abc,  f, aproximation radius
+					}
+					// the helper point with only xyz and Ta
+					for (i = 0; i < 4; i++) {
+						P3[i] = m_Outputs.GUI_Buff[++indexOfGui];
+					}
+					for (i = 0; i < 6; i++) {
+						P0[i] = (P0[i] * M_PI) / 180.0; //to radian
+					}
+					trajectory.CIRC(P0, P1, P3, d1);
+				}
+				// fill d2
+				if (m_Outputs.GUI_Buff[indexOfGui] == 1) // LIN
+				{
+					for (i = 0; i < 8; i++) {
+						P2[i] = m_Outputs.GUI_Buff[++indexOfGui];
+					}
+					for (i = 0; i < 6; i++) {
+						P1[i] = (P1[i] * M_PI) / 180.0; //to radian
+					}
+					trajectory.LIN(P1, P2, trajectory.toolParamGlobal, d2);
+				}
+				else if (m_Outputs.GUI_Buff[indexOfGui] == 2) // CIRC
+				{
+
+				}
+				//indexpre
+				indexPre = trajectory.getIndexPre(d1, P1[7]); // p1[7] is approximate radius
+				//indexnext
+				indexNext = trajectory.getIndexNext(d2, P1[7]); // p1[7] is approximate radius
+				trajectory.approximation(d1, d2, P1[7],d3);
+				//fill d3 with approximation
+				for (i = 0; i < indexPre; i++) // can also copy whole array
+				{
+					targetPoints[i] = d1[i];
+				}
+				//fill target points
+				for (int i = 0; i < d3[0].TrajLength ; i++)
+				{
+					targetPoints[indexPre+i] = d3[i];
+				}
+			}
+
+
+
 			//for (i = 0; i < 6; i++) {
 			//	actualPos[i] = (actualPos[i] * M_PI) / 180.0; //to radian
 			//}
-			trajectory.PTPCartesian(actualPos, targetPos , targetPoints);
-			break;
-		case 12: //CIRC
-			for (i = 0; i < 6; i++) {
-				actualPos[i] = (actualPos[i] * M_PI) / 180.0; //to radian
-			}
-			//trajectory.GetCartPos(actualPos, toolParam, getCartPosOut);	
-			trajectory.CIRC(actualPos, trajectory.point2Circ, trajectory.point3Circ, targetPoints);
-			break;
-		case 16: //LIN
-			for (i = 0; i < 6; i++) {
-				actualPos[i] = (actualPos[i] * M_PI) / 180.0; //to radian
-			}
-			//trajectory.GetCartPos(actualPos, toolParam, getCartPosOut);	
-			trajectory.LIN(actualPos, targetPos, trajectory.toolParamGlobal, targetPoints);
+			//trajectory.LIN(actualPos, targetPos, trajectory.toolParamGlobal, targetPoints);
 			break;
 		case 98: // Home
 			targetPos[0] = 0;

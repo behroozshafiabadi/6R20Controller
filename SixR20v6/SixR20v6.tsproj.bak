@@ -115,7 +115,7 @@
 								<AreaNo AreaType="InputDst" CreateSymbols="true">0</AreaNo>
 								<Name>Inputs</Name>
 								<ContextId>1</ContextId>
-								<ByteSize>82</ByteSize>
+								<ByteSize>482</ByteSize>
 								<Symbol>
 									<Name>GUI_Manager</Name>
 									<BitSize>8</BitSize>
@@ -189,6 +189,16 @@
 										<Elements>16</Elements>
 									</ArrayInfo>
 									<BitOffs>640</BitOffs>
+								</Symbol>
+								<Symbol CreateSymbol="true">
+									<Name>GUI_Buff</Name>
+									<BitSize>3200</BitSize>
+									<BaseType GUID="{18071995-0000-0000-0000-00000000000D}">REAL</BaseType>
+									<ArrayInfo>
+										<LBound>0</LBound>
+										<Elements>100</Elements>
+									</ArrayInfo>
+									<BitOffs>656</BitOffs>
 								</Symbol>
 							</DataArea>
 							<DataArea>
@@ -1613,7 +1623,7 @@
 						<DeviceData>0001053ade85</DeviceData>
 					</Pnp>
 				</AddressInfo>
-				<Image Id="5" AddrType="2" ImageType="3">
+				<Image Id="5" AddrType="1" ImageType="3">
 					<Name>Image</Name>
 				</Image>
 				<Ethernet DeviceDesc="Ethernet (TwinCAT-Intel PCI Ethernet Adapter (Gigab"/>
