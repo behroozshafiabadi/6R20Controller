@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{27b70098-a5be-4123-a003-64cc8ee94135}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{959dc28d-bc77-4fd8-a263-fc3997eedc0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TwinCAT UM Files">
+      <UniqueIdentifier>{1da91c2d-9807-4b62-a434-9c776fd1f83d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TwinCAT RT Files">
+      <UniqueIdentifier>{33bca03d-f4c0-4a97-9cbe-50d04cc7f708}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TMC Files">
+      <UniqueIdentifier>{d64d84f2-52d6-44f7-a829-4d9757f0da33}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TcPch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ControllerClassFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ControllerInterfaces.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ControllerServices.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ControllerCtrl.h">
+      <Filter>TwinCAT UM Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ControllerDriver.h">
+      <Filter>TwinCAT RT Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MainAds.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Traj7Seg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TrajectoryPoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Generator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="slerp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="TcPch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ControllerClassFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ControllerCtrl.cpp">
+      <Filter>TwinCAT UM Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ControllerW32.cpp">
+      <Filter>TwinCAT UM Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ControllerDriver.cpp">
+      <Filter>TwinCAT RT Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Traj7Seg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TrajectoryPoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Generator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="slerp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Controller.rc">
+      <Filter>Source Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ControllerW32.def">
+      <Filter>TwinCAT UM Files</Filter>
+    </None>
+    <None Include="Controller.tmc">
+      <Filter>TMC Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="ControllerW32.idl">
+      <Filter>TwinCAT UM Files</Filter>
+    </Midl>
+  </ItemGroup>
+</Project>
