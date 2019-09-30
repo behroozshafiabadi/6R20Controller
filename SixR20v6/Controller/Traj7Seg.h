@@ -36,7 +36,7 @@ public:
 
 	int getIndexPre(TrajectoryPointList<double> d1[], double radius);
 	int getIndexNext(TrajectoryPointList<double> d2[], double radius);
-	void approximation(TrajectoryPointList<double> d1[], TrajectoryPointList<double> d2[], double radius, TrajectoryPointList<double> d3[]);
+	void approximation(TrajectoryPointList<double> d1[], TrajectoryPointList<double> d2[], double radius, int &IndPre, int &IndNext, TrajectoryPointList<double> d3[]);
 
 	void GetCartPos(double theta[6], double ToolParams[], double out[]);//mnr
 	void Inversekinematic(double MT[], double QBase[], double QTool[], double CurPos[], double Q[6]);// (double QG[], double ToolParams[], double QBase[], double out[8][6]);//mnr

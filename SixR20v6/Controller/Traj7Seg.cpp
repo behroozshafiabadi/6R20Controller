@@ -71,8 +71,9 @@ int Traj7Seg::getIndexNext(TrajectoryPointList<double> d2[], double radius)
 {
 	return 0;
 }
-void Traj7Seg::approximation(TrajectoryPointList<double> d1[], TrajectoryPointList<double> d2[], double radius)
+void Traj7Seg::approximation(TrajectoryPointList<double> d1[], TrajectoryPointList<double> d2[], double radius, int &IndPre, int &IndNext, TrajectoryPointList<double> d3[])
 {
+
 }
 void Traj7Seg::DQmultiply(double Q1[], double Q2[], double out[])
 {
