@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+﻿///////////////////////////////////////////////////////////////////////////////
 // Generator.cpp
 #include "TcPch.h"
 #pragma hdrstop
@@ -185,11 +185,17 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 	HRESULT hr = S_OK;
 	if (global.GUI_GetNextCMD == 1) {
 		global.GUI_GetNextCMD = 0;
-		index_point = 0;
+		index_point = 0;  // شاخص صف داده تولید شده است
 		for (i = 0; i < 6; i++) {
-			actualPos[i] = (static_cast<double>(global.ActualPosition[i])) * trajectory.PulsToDegFactor1[i];
+			// PulsToDegFactor1 در مورد 
+			// انکدر باید باید در یک عدد ثابت ضرب شود تا تبدیل به درجه شود. این عدد ثابت با توجه به موتور و گیربکس متغییر است
+			// در مورد انکدر : یکی دو سیم متصل موتور است که شمارنده ای است که با هر دور چرخش موتور 524000 عدد را می شمارد که به نوعی نشان از دقت موتور است
+			actualPos[i] = (static_cast<double>(global.ActualPosition[i])) * trajectory.PulsToDegFactor1[i]; // به ازای هر موتور یک عدد است trajectory.PulsToDegFactor1 
 			targetPos[i] = /*actualPos[i] +*/ (global.GUI_TargetPosition[i]);
 			targetPoints[i].clearAll();
+			/*
+           مشخص میشود xyz rpy یک آرایه هشت تایی است که به صورت  targetPos در تمام حالت ها 
+			*/
 			//targetPos[i] = (double)(global.GUI_TargetPosition[i]);
 		}
 		targetPos[6] = global.GUI_TargetPosition[6];
