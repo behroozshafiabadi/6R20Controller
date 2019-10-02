@@ -199,9 +199,9 @@ double Traj7Seg::point3Circ[4] = { 0,0,0,-1 };
 سوالات کلی : 
 نقطه شروع برنامه چیست ؟ *
 main.cpp OR generator.cpp
+تعریف شده اند main ورودی ها و خروجی ها در     
 برای چه در ربات دو ماژول وجود دارد ؟ *
-
-
+برای تولید داده است Controller Instance 2
 */
 HRESULT CMain::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR context)
 {
@@ -221,23 +221,35 @@ HRESULT CMain::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR cont
 		{
 			SubmitAdsReadReq();
 			// نحوه کار این تابع چیست و برای چه فراخوانی شده؟؟
+			// خود سیستم تولید کرده است
 		}
 	}
 	global.GUI_Manager = m_Inputs.GUI_Manager;
 	/*
-	  در چیست ؟m_Inputs.GUI_Manager و  global.GUI_Manager تفاوت 
+	 در چیست ؟m_Inputs.GUI_Manager و  global.GUI_Manager تفاوت 
+	  شبیه هم هستند و هم را آپدیت میکنند
+	استفاده کند m_Inputs.GUI_Manager  هم بتواند از  genarator  برای این استفاده می شود که ماژول  global.GUI_Manager
 	*/
 	for (int i = 0; i < 6; i++) {
 		global.ActualPosition[i] = m_Inputs.ActualPosition[i];
 	}
 	/*
 	این حلقه برای چه فراخوانی شده ؟
+   به آن دسترسی داشته باشد genarator   همانند بالا برا این فراخوانی شده 
 	*/
 	for (int i = 0; i < 8; i++) {
 		global.GUI_TargetPosition[i] = static_cast<double>(m_Inputs.GUI_TargetPosition[i]);// because of hanking
 	}
 	/*
 	این حلقه برای چه فراخوانی شده ؟
+	به آن دسترسی داشته باشد genarator   همانند بالا برا این فراخوانی شده
+	*/
+
+	/*
+	
+	هستند GUI_TargetPosition و  ActualPosition شامل دو ورودی  genarator به صورت کلی توابع ساخت مسیر   
+	
+	
 	*/
 	//}
 	switch (m_Inputs.GUI_Manager)
@@ -247,12 +259,14 @@ HRESULT CMain::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR cont
 			m_Outputs.TargetPosition[i] = m_Inputs.ActualPosition[i];
 			m_Outputs.ControlWord[i] = 15;
 			/*
-			 در کجا پر می شود؟m_Inputs.ActualPosition 
+			در کجا پر می شود؟m_Inputs.ActualPosition 
+			پر میشود و باید در هر سیکل چک شود gui در  
 			*/
 		}
 		m_Outputs.ModOfOperation = 8;
 		/*
   چه عملیاتی انجام میشود ؟m_Outputs.ModOfOperation به وسیله
+ لینک شده است  ModOfOperation این متغییر به برای تعیین مود کاری درایوها مقداردهی می شود و به متغییر 
 		*/
 		m_Inputs.GUI_Manager = 100;
 		break;
@@ -266,28 +280,37 @@ HRESULT CMain::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR cont
 		if (global.GUI_GetNextCMD == 0)
 			/*
 			میشود ؟ و این تغییر در کجا درک میشود ؟ global.GUI_GetNextCMD == 0 برای چه 
+			انجام میگیردgenerator درک این موضوع در 
+			ما یک شرط کلی داریم که ورود به آن هنگامی صورت می گیرد که این متغییر صفر باشد generator در 
+			فراخوانی توابع حرکتی است generator زیرا کار  
+		 	می تواند فراخوانی شود generator اگر یک بود یعنی 
+			مشغول است و درخواست حرکتی رد می شود generator اگر صفر بود یعنی 
 			*/
 			m_Inputs.GUI_Manager = 100;
+			/*
+			می شود m_Inputs.GUI_Manager = 100; باعث خنثی شدن عملیات صورت گرفته در سیکل های بعدی بر اساس  m_Inputs.GUI_Manager = 100; عبارت 
+			*/
 		break;
 	case 10: //PTP Position XYZ ABC
 		if (global.GUI_GetNextCMD == 0)
 			/*
 			میشود ؟ و این تغییر در کجا درک میشود ؟ global.GUI_GetNextCMD == 0 برای چه
-			 مشخص شودptp تفاوت دو نوع 
+			تکراری 
+			مشخص شودptp تفاوت دو نوع 
 			*/
 			m_Inputs.GUI_Manager = 100;
 		break;
 	case 12: //CIRC
 		if (global.GUI_GetNextCMD == 0)
-			/*
-		 است ؟ ptp  کاملا شبیه CIRC چرا عملیات 
+			/* 
+			درخواست رد می شود
 			*/
 			m_Inputs.GUI_Manager = 100;
 		break;
 	case 16: //LIN
 		if (global.GUI_GetNextCMD == 0)
 			/*
-			است ؟ ptp  کاملا شبیه LIN چرا عملیات
+			درخواست رد می شود
 			*/
 			m_Inputs.GUI_Manager = 100;
 		break;
@@ -296,7 +319,8 @@ HRESULT CMain::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR cont
 			traj7Seg.point2Circ[i] = static_cast<double>(m_Inputs.GUI_TargetPosition[i]);
 		}
 		/*
-		توضیح کاری که در این حلقه استفاده می شود
+		اولا که این قسمت باید تغیر کند
+        برای ساخت حرکت دایره ای، دهیم generator در این قسمت سه نقطه را می خواهیم به 
 		*/
 			m_Inputs.GUI_Manager = 23;
 		break;
@@ -305,13 +329,17 @@ HRESULT CMain::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR cont
 			traj7Seg.point3Circ[i] = static_cast<double>(m_Inputs.GUI_TargetPosition[i]);
 		}
 		/*
-		توضیح کاری که در این حلقه استفاده می شود
+		
 		*/
 		m_Inputs.GUI_Manager = 23;
 		break;
 	case 64: // Jog Joint
 		for (int i = 0; i < 6; i++) {
 			if (!m_Inputs.GUI_StopingJog && m_Inputs.GUI_MSelect[i])
+			/*
+            m_Inputs.GUI_StopingJog
+			m_Inputs.GUI_MSelect
+			*/
 			{
 				JogCurrentSpeed[i] = JogCurrentSpeed[i] + 0.001 * JogAcceleration;
 			}
@@ -421,6 +449,12 @@ HRESULT CMain::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR cont
 	default:
 		break;
 	}
+	/*
+	در این بخش داده ساخته شده به درایو منتقل می شود
+	مثلا دکمه پاز باید جلوی اجرای بخش را بگیرد
+	دو شرط این را بیان میکنند که اولا تولید کننده در حال تولید نباشد و داده در صف موجود باشد
+	
+	*/
 	if (global.GUI_GetNextCMD == 1 && !global.m0.empty())
 		m_Outputs.TargetPosition[0] = global.get_dataPoint(0);
 	if (global.GUI_GetNextCMD == 1 && !global.m1.empty())
@@ -438,9 +472,18 @@ HRESULT CMain::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR cont
 	*/
 	if (global.GUI_GetNextCMD==1 && global.m0.empty())// || global.m0.empty())// && global.m1.empty() && global.m2.empty() && global.m3.empty() && global.m4.empty() && global.m5.empty())
 		m_Outputs.GUI_GetNextCMD = 2;
+	 /*
+	 اشتباه نشود global.GUI_GetNextCMD را با  m_Outputs.GUI_GetNextCMD 
+	   یا یک  یا صفر می شود    global.GUI_GetNextCMD
+	   صفر یعنی تولیدکننده مشغول است و یک یعنی آزاد است
+	   یا یک می شود یا دو می شود  m_Outputs.GUI_GetNextCMD
+		یک یعنی انترفیس اجازه ندارد دستور بعدی را بدهد چون ربات به نقطه موردنظر نرسیده است
+		دو یعنی اجازه ارسال ارسال دستور بعدی را دارد
+	*/
 	else
 		/*
 		چه توجیهی دارد؟ else این
+		یعنی اگر یک باشد 
 		*/
 		m_Outputs.GUI_GetNextCMD = 1;
 	return hr;
