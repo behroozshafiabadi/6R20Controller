@@ -63,18 +63,6 @@ void Traj7Seg::DQinv(double Q1[], double Q[])
 	Q[7] = -Q1[7] + Q1[0] * (Q1[1] * Q1[6] - Q1[2] * Q1[5]) * 2 + Q1[1] * (Q1[1] * Q1[7] - Q1[3] * Q1[5]) * 2 + Q1[2] * (Q1[2] * Q1[7] - Q1[3] * Q1[6]) * 2;
 	//return Q;
 }
-int Traj7Seg::getIndexPre(TrajectoryPointList<double> d1[], double radius)
-{
-	return 0;
-}
-int Traj7Seg::getIndexNext(TrajectoryPointList<double> d2[], double radius)
-{
-	return 0;
-}
-void Traj7Seg::approximation(TrajectoryPointList<double> d1[], TrajectoryPointList<double> d2[], double radius, int &IndPre, int &IndNext, TrajectoryPointList<double> d3[])
-{
-
-}
 void Traj7Seg::DQmultiply(double Q1[], double Q2[], double out[])
 {
 	out[0] = Q1[0] * Q2[0] - Q1[1] * Q2[1] - Q1[2] * Q2[2] - Q1[3] * Q2[3];
@@ -521,10 +509,8 @@ void Traj7Seg::PTPCartesian(double ActualPos[], double vals[], TrajectoryPointLi
 	double targetPos[] = { res[0] * (180.0 / M_PI),res[1] * (180.0 / M_PI),res[2] * (180.0 / M_PI),res[3] * (180.0 / M_PI),res[4] * (180.0 / M_PI),res[5] * (180.0 / M_PI),vals[6],vals[7]};
 	PTPList(ActualPos, targetPos, out);
 }
-void Traj7Seg::LIN(double actualPosition[], double targetPosition[], double toolParams[], TrajectoryPointList<double> resultList[])
+void Traj7Seg::LIN(double DQCurrentPosition[], double targetPosition[], double toolParams[], bool is_first, bool is_end, TrajectoryPointList<double> resultList[])
 {
-	double DQCurrentPosition[8];
-	GetCartPos(actualPosition, toolParams, DQCurrentPosition);
 	double DQCurrentPositionInRef[8];
 	DQmultiply(QbaseGlobal, DQCurrentPosition, DQCurrentPositionInRef);
 	double DQTargetPositionInRef[8];
@@ -546,7 +532,26 @@ void Traj7Seg::LIN(double actualPosition[], double targetPosition[], double tool
 	//if (BeckhoffContext::abs(targetPosition[7] - (-1)) > tolerance)//mrr
 	//	tmpVals[7] = targetPosition[7];//mrr
 	double distance = sqrt_(pow_(DQTargetPositionInRef[5] - DQCurrentPositionInRef[5], 2) + pow_(DQTargetPositionInRef[6] - DQCurrentPositionInRef[6], 2) + pow_(DQTargetPositionInRef[7] - DQCurrentPositionInRef[7], 2));
-	TrajectoryPointList<double> pointList = SingleAxisTraj(TrajectoryPoint(0, 0), TrajectoryPoint(distance, 0), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
+	TrajectoryPointList<double> pointList;
+	if (targetPosition[7] == 1) // movement is continues
+	{
+		if (is_first)
+		{
+			pointList = SingleAxisTraj(TrajectoryPoint(0, 0), TrajectoryPoint(distance, 100), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
+		}
+		else if (is_end)
+		{
+			pointList = SingleAxisTraj(TrajectoryPoint(0, 100), TrajectoryPoint(distance, 0), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
+		}
+		else
+		{
+			pointList = SingleAxisTraj(TrajectoryPoint(0, 100), TrajectoryPoint(distance, 100), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
+		}
+	}
+	else
+	{
+		pointList = SingleAxisTraj(TrajectoryPoint(0, 0), TrajectoryPoint(distance, 0), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
+	}
 	//double tmpTeta[6];
 	Quaternion Qend = Quaternion(QuatRPYTargetPosition);
 	Quaternion QCurrent = Quaternion(QuatRPYCurrentPosition);
@@ -562,23 +567,35 @@ void Traj7Seg::LIN(double actualPosition[], double targetPosition[], double tool
 		s.Slerp1(QCurrent, Qend, Qnext, pointList.q[i] / distance);
 		double res[6];
 		double DQPath[] = {Qnext.u.x, Qnext.u.y, Qnext.u.z, Qnext.w, 0, x, y, z };
-		if (i == 0)
+		for (int j = 0; j < 8; j++)
 		{
-			Inversekinematic(DQPath, QbaseGlobal, toolParams, actualPosition, res);//, res);
+			resultList[j].AddPoint(DQPath[j], 0, 0);
 		}
-		else
-		{
-			double PrePosition[6];
-			for (int j = 0; j < 6; j++)
-			{
-				PrePosition[j] = resultList[j].q[i - 1] * (M_PI/ 180.0);
-			}
-			Inversekinematic(DQPath, QbaseGlobal, toolParams, PrePosition, res);
-		}
-		for (int j = 0; j < 6; j++)
-		{
-			resultList[j].AddPoint(res[j] * (180.0 / M_PI), 0, 0);
-		}
+		//if (i == 0)
+		//{
+		//	Inversekinematic(DQPath, QbaseGlobal, toolParams, actualPosition, res);//, res);
+
+		//}
+		//else
+		//{
+		//	
+		//	double PrePosition[6];
+
+		//	for (int j = 0; j < 6; j++)
+		//	{
+		//		PrePosition[j] = resultList[j].q[i - 1] * (M_PI / 180.0);
+
+		//	}
+		//	if (i == 5813)
+		//		int rr = 0;
+		//	Inversekinematic(DQPath, QbaseGlobal, toolParams, PrePosition, res);
+
+		//}
+		//for (int j = 0; j < 6; j++)
+		//{
+		//	resultList[j].AddPoint(res[j] * (180.0 / M_PI), 0, 0);
+		//	
+		//}
 	}
 }
 void Traj7Seg::toEulerianAngle(double quar[], double output[])
@@ -847,4 +864,96 @@ double Traj7Seg::normA(double a[], int len) {
 	// cout<<"s: "<<s<<endl;
 	return sqrt_(s);
 	// cout<<"out: "<<*out<<endl;
+}
+void Traj7Seg::Approximation(TrajectoryPointList<double> da1[], TrajectoryPointList<double> da2[], double radius, TrajectoryPointList<double> out[], int &IndPre, int &IndNext)
+{
+	int ltemp = 0;
+	int m = da2[0].TrajLength - 1;//ld2 - 1;
+	int n = 0;
+	while (ltemp <= radius/* && n != da2[0].TrajLength - 1*/)
+	{
+		ltemp = ltemp + sqrt_(pow_((da1[5].q[m - 1] - da1[5].q[m]), 2) + pow_((da1[6].q[m - 1] - da1[6].q[m]), 2) + pow_((da1[7].q[m - 1] - da1[7].q[m]), 2));
+		m = m - 1;
+		n = n + 1; // number of beginnig data of the second traj
+	}
+
+	// Data in the approximation distance
+	double *X1p = new double[n];
+	double *Y1p = new double[n];
+	double *Z1p = new double[n];
+	double *X2p = new double[n];
+	double *Y2p = new double[n];
+	double *Z2p = new double[n];
+	int index = 0;
+	for (int i = da1[0].TrajLength - n; i < da1[0].TrajLength; i++)
+	{
+		X1p[index] = da1[5].q[i];
+		Y1p[index] = da1[6].q[i];
+		Z1p[index] = da1[7].q[i];
+		index++;
+	}
+	for (int i = 0; i < n; i++)
+	{
+		X2p[i] = da2[5].q[i];
+		Y2p[i] = da2[6].q[i];
+		Z2p[i] = da2[7].q[i];
+	}
+
+	// Calculates length of the trajectory and ratios
+	double L1 = sqrt_(pow_((X1p[da1[0].TrajLength - 1] - X1p[0]), 2) + pow_((Y1p[da1[0].TrajLength - 1] - Y1p[0]), 2) + pow_((Z1p[da1[0].TrajLength - 1] - Z1p[0]), 2));
+	double *ratiol = new double[da1[0].TrajLength];
+	IndNext = n;
+	IndPre = da1[0].TrajLength - n;
+	for (int i = 0; i < n; i++)
+	{
+		double L = sqrt_(pow_((X1p[i] - X1p[0]), 2) + pow_((Y1p[i] - Y1p[0]), 2) + pow_((Z1p[i] - Z1p[0]), 2));
+		ratiol[i] = L / L1;
+	}
+
+	// Connect lines and derive the points
+	double **P = new double*[n]; // row  = n
+	for (int i = 0; i < n; i++)
+	{
+		P[i] = new double[3]; // column = 3
+	}
+
+	double current[4] = {
+		da1[0].q[da1[0].TrajLength - n - 1],
+		da1[1].q[da1[0].TrajLength - n - 1],
+		da1[2].q[da1[0].TrajLength - n - 1],
+		da1[3].q[da1[0].TrajLength - n - 1] };
+
+	double end[4] = {
+		da2[0].q[n - 1],
+		da2[1].q[n - 1],
+		da2[2].q[n - 1],
+		da2[3].q[n - 1] };
+	Quaternion Qend = Quaternion(current);
+	Quaternion QCurrent = Quaternion(end);
+	Quaternion Qnext;
+	slerp s;
+	for (int i = 0; i < n; i++)
+	{
+		double L = sqrt_(pow_((X2p[i] - X1p[i]), 2) + pow_((Y2p[i] - Y2p[i]), 2) + pow_((Z2p[i] - Z2p[i]), 2));
+		double unit_vec[3] = { (X2p[i] - X1p[i]) / L, (Y2p[i] - Y1p[i]) / L, (Z2p[i] - Z1p[i]) / L };
+		P[i][0] = (unit_vec[0] * ratiol[i] * L) + X1p[i];
+		P[i][1] = (unit_vec[1] * ratiol[i] * L) + Y1p[i];
+		P[i][2] = (unit_vec[2] * ratiol[i] * L) + Z1p[i];
+
+		// Rotation approximation
+		s.Slerp1(QCurrent, Qend, Qnext, ratiol[i]);
+		out[0].AddPoint(Qnext.u.x, 0, 0);
+		out[1].AddPoint(Qnext.u.y, 0, 0);
+		out[2].AddPoint(Qnext.u.z, 0, 0);
+		out[3].AddPoint(Qnext.w, 0, 0);
+		out[4].AddPoint(0, 0, 0);
+	}
+	//Q = SLERP(Q1(end - n + 1, :), Q2(n, :), ratiol);
+
+	for (int i = 0; i < n; i++)
+	{
+		out[5].AddPoint(P[i][0], 0, 0);
+		out[6].AddPoint(P[i][1], 0, 0);
+		out[7].AddPoint(P[i][2], 0, 0);
+	}
 }

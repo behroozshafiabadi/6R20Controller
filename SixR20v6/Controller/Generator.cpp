@@ -93,6 +93,8 @@ TrajectoryPointList<double> d2[6];
 TrajectoryPointList<double> d3[6];
 int indexPre = 0;
 int indexNext = 0;
+bool is_first, is_end;
+double DQCurrentPosition[8];
 
 ///////////////////////////////////////////////////////////////////////////////
 CGenerator::CGenerator()
@@ -227,14 +229,17 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 				//if first and calculation p0
 				if (indexOfGui == 0) // first
 				{
+					is_first = true;
 					for (i = 0; i < 6; i++) {
-						P0[i] = actualPos[i]; //degree
+						P0[i] = actualPos[i] * M_PI / 180.0; //radian
 					}
+					trajectory.GetCartPos(P0, trajectory.toolParamGlobal, DQCurrentPosition);
 				}
 				else
 				{
-					for (i = 0; i < 6; i++) {
-						P0[i] = d2[i].q[indexNext]; // degree
+					is_first = false;
+					for (i = 0; i < 8; i++) {
+						DQCurrentPosition[i] = d2[i].q[indexNext]; // degree
 					}
 				}
 				//if for end
@@ -254,10 +259,7 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 					for (i = 0; i < 8; i++) {
 						P1[i] = m_Outputs.GUI_Buff[++indexOfGui];
 					}
-					for (i = 0; i < 6; i++) {
-						P0[i] = (P0[i] * M_PI) / 180.0; //to radian
-					}
-					trajectory.LIN(P0, P1, trajectory.toolParamGlobal, d1);
+					trajectory.LIN(DQCurrentPosition, P1, trajectory.toolParamGlobal, is_first, is_end, d1);
 				}
 				else if (m_Outputs.GUI_Buff[indexOfGui] == 2) // CIRC
 				{
@@ -279,26 +281,22 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 					for (i = 0; i < 8; i++) {
 						P2[i] = m_Outputs.GUI_Buff[++indexOfGui];
 					}
-					for (i = 0; i < 6; i++) {
-						P1[i] = (P1[i] * M_PI) / 180.0; //to radian
+					for (i = 0; i < 8; i++) {
+						P1[i] = d1[i].q[d1[0].TrajLength-1];
 					}
-					trajectory.LIN(P1, P2, trajectory.toolParamGlobal, d2);
+					trajectory.LIN(P1, P2, trajectory.toolParamGlobal, is_first, is_end, d2);
 				}
 				else if (m_Outputs.GUI_Buff[indexOfGui] == 2) // CIRC
 				{
 
 				}
-				//indexpre
-				indexPre = trajectory.getIndexPre(d1, P1[7]); // p1[7] is approximate radius
-				//indexnext
-				indexNext = trajectory.getIndexNext(d2, P1[7]); // p1[7] is approximate radius
-				trajectory.approximation(d1, d2, P1[7],d3);
-				//fill d3 with approximation
+				trajectory.Approximation(d1, d2, P1[7],d3, indexPre, indexNext);
+				//fill data of traj1
 				for (i = 0; i < indexPre; i++) // can also copy whole array
 				{
 					targetPoints[i] = d1[i];
 				}
-				//fill target points
+				//fill approximation's data
 				for (int i = 0; i < d3[0].TrajLength ; i++)
 				{
 					targetPoints[indexPre+i] = d3[i];
