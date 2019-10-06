@@ -420,7 +420,17 @@
 								<AreaNo AreaType="OutputSrc">1</AreaNo>
 								<Name>Outputs</Name>
 								<ContextId>1</ContextId>
-								<ByteSize>0</ByteSize>
+								<ByteSize>400</ByteSize>
+								<Symbol>
+									<Name>GUI_Buff</Name>
+									<BitSize>3200</BitSize>
+									<BaseType GUID="{18071995-0000-0000-0000-00000000000D}">REAL</BaseType>
+									<ArrayInfo>
+										<LBound>0</LBound>
+										<Elements>100</Elements>
+									</ArrayInfo>
+									<BitOffs>0</BitOffs>
+								</Symbol>
 							</DataArea>
 						</DataAreas>
 						<InterfacePointers>
@@ -1696,6 +1706,11 @@
 				<Link VarA="Drive 9 (L7N)^2nd Receive PDO mapping^Target Position" VarB="Outputs^TargetPosition[2]"/>
 				<Link VarA="Drive 9 (L7N)^2nd Transmit PDO mapping^Position Actual Value" VarB="Inputs^ActualPosition[2]"/>
 				<Link VarA="Drive 9 (L7N)^2nd Transmit PDO mapping^Statusword" VarB="Inputs^StatusWord[2]"/>
+			</OwnerB>
+		</OwnerA>
+		<OwnerA Name="TIXC^Controller^Controller Instance 2">
+			<OwnerB Name="TIXC^Controller^Controller_Obj1 (Main)">
+				<Link VarA="Outputs^GUI_Buff" VarB="Inputs^GUI_Buff"/>
 			</OwnerB>
 		</OwnerA>
 	</Mappings>
