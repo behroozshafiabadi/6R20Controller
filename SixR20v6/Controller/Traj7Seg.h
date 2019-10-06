@@ -33,7 +33,6 @@ public:
 	int Traj7Seg::add(int a, int b);
 	void DQmultiply(double Q1[], double Q2[], double out[]);
 	void DQinv(double Q1[] , double out[]);
-
 	void GetCartPos(double theta[6], double ToolParams[], double out[]);//mnr
 	void Inversekinematic(double MT[], double QBase[], double QTool[], double CurPos[], double Q[6]);// (double QG[], double ToolParams[], double QBase[], double out[8][6]);//mnr
 	TrajectoryPointList<double> Traj7Seg::SingleAxisTraj(TrajectoryPoint p0, TrajectoryPoint p1, double vmax, double amax, double jmax, double TS, double landa);//, TrajectoryPointList<double> out);
@@ -45,8 +44,9 @@ public:
 	void Traj7Seg::cross(double a[], double b[], double out[], int len);
 	double Traj7Seg::dot(double a[], double b[], int len);
 	double Traj7Seg::normA(double a[], int len);
+	void Approximation(TrajectoryPointList<double> da1[], TrajectoryPointList<double> da2[], double radius, TrajectoryPointList<double> out[], int &IndPre, int &IndNext);
 	//TrajectoryPointList<double>* PTPList(double ActualPos[], std::map <char*, double> dict);
-	void LIN(double ActualPos[], double vals[], double toolParams[], TrajectoryPointList<double> outputs[]);
+	void LIN(double ActualPos[], double vals[], double toolParams[], bool is_first, bool is_end, TrajectoryPointList<double> outputs[]);
 	void OTG();
 	void toEulerianAngle(double quar[], double out[]);
 	void toQuaternion(double roll, double pitch, double yaw, double out[]);

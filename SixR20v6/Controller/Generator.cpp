@@ -83,6 +83,21 @@ double targetPos[8];
 //double toolParam[8] = { 1,0,0,0,0,0,0,0 };
 double t1, t2, t3;
 int i = 0;
+int indexOfGui = 0;
+double P0[8];
+double P1[8];
+double P2[8];
+double P3[4];
+TrajectoryPointList<double> d1[6];
+TrajectoryPointList<double> d2[6];
+TrajectoryPointList<double> d3[6];
+int indexPre = 0;
+int indexNext = 0;
+bool is_first, is_end;
+double DQCurrentPosition[8];
+double res[6];
+double DQPath[8];
+
 ///////////////////////////////////////////////////////////////////////////////
 CGenerator::CGenerator()
 	: m_Trace(m_TraceLevelMax, m_spSrv)
@@ -193,9 +208,10 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 			actualPos[i] = (static_cast<double>(global.ActualPosition[i])) * trajectory.PulsToDegFactor1[i]; // به ازای هر موتور یک عدد است trajectory.PulsToDegFactor1 
 			targetPos[i] = /*actualPos[i] +*/ (global.GUI_TargetPosition[i]);
 			targetPoints[i].clearAll();
-			/*
-			مشخص میشود xyz rpy یک آرایه هشت تایی است که به صورت  targetPos در تمام حالت ها
-			*/
+
+			d1[i].clearAll();
+			d2[i].clearAll();
+			d3[i].clearAll();
 			//targetPos[i] = (double)(global.GUI_TargetPosition[i]);
 		}
 		targetPos[6] = global.GUI_TargetPosition[6];
@@ -211,19 +227,116 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 				 //}
 			trajectory.PTPCartesian(actualPos, targetPos, targetPoints);
 			break;
-		case 12: //CIRC
-			for (i = 0; i < 6; i++) {
-				actualPos[i] = (actualPos[i] * M_PI) / 180.0; //to radian
+		//case 12: //CIRC
+		//	for (i = 0; i < 6; i++) {
+		//		actualPos[i] = (actualPos[i] * M_PI) / 180.0; //to radian
+		//	}
+		//	trajectory.CIRC(actualPos, trajectory.point2Circ, trajectory.point3Circ, targetPoints);
+		//	break;
+		case 16: //LIN or CIRC
+			while (m_Outputs.GUI_Buff[indexOfGui] != 3) {
+				//if first and calculation p0
+				if (indexOfGui == 0) // first
+				{
+					is_first = true;
+					for (i = 0; i < 6; i++) {
+						P0[i] = actualPos[i] * M_PI / 180.0; //radian
+					}
+					trajectory.GetCartPos(P0, trajectory.toolParamGlobal, DQCurrentPosition);
+				}
+				else
+				{
+					is_first = false;
+					for (i = 0; i < 8; i++) {
+						DQCurrentPosition[i] = d2[i].q[indexNext]; // degree
+					}
+				}
+				// fill d1
+				if (m_Outputs.GUI_Buff[indexOfGui] == 1) // LIN
+				{
+					for (i = 0; i < 8; i++) {
+						P1[i] = m_Outputs.GUI_Buff[++indexOfGui];
+					}
+					if (m_Outputs.GUI_Buff[indexOfGui] == 3) // END of Buff
+					{
+						is_end = true;
+					}
+					else
+					{
+						is_end = false;
+					}
+					trajectory.LIN(DQCurrentPosition, P1, trajectory.toolParamGlobal, is_first, is_end, d1);
+				}
+				else if (m_Outputs.GUI_Buff[indexOfGui] == 2) // CIRC
+				{
+					//for (i = 0; i < 8; i++) {
+					//	P1[i] = m_Outputs.GUI_Buff[++indexOfGui]; // xyz abc,  f, aproximation radius
+					//}
+					//// the helper point with only xyz and Ta
+					//for (i = 0; i < 4; i++) {
+					//	P3[i] = m_Outputs.GUI_Buff[++indexOfGui];
+					//}
+					//for (i = 0; i < 6; i++) {
+					//	P0[i] = (P0[i] * M_PI) / 180.0; //to radian
+					//}
+					//trajectory.CIRC(P0, P1, P3, d1);
+				}
+				// fill d2
+				if (m_Outputs.GUI_Buff[indexOfGui] == 1) // LIN
+				{
+					for (i = 0; i < 8; i++) {
+						P2[i] = m_Outputs.GUI_Buff[++indexOfGui];
+					}
+					for (i = 0; i < 8; i++) {
+						P1[i] = d1[i].q[d1[0].TrajLength-1];
+					}
+					trajectory.LIN(P1, P2, trajectory.toolParamGlobal, is_first, is_end, d2);
+					trajectory.Approximation(d1, d2, P1[7], d3, indexPre, indexNext);
+					//fill data of traj1
+					for (i = 0; i < indexPre; i++) // can also copy whole array
+					{
+						targetPoints[i] = d1[i];
+					}
+					//fill approximation's data
+					for (int i = 0; i < d3[0].TrajLength; i++)
+					{
+						targetPoints[indexPre + i] = d3[i];
+					}
+				}
+				else if (m_Outputs.GUI_Buff[indexOfGui] == 2) // CIRC
+				{
+					// call circ
+
+					//trajectory.Approximation(d1, d2, P1[7], d3, indexPre, indexNext);
+					////fill data of traj1
+					//for (i = 0; i < indexPre; i++) // can also copy whole array
+					//{
+					//	targetPoints[i] = d1[i];
+					//}
+					////fill approximation's data
+					//for (int i = 0; i < d3[0].TrajLength; i++)
+					//{
+					//	targetPoints[indexPre + i] = d3[i];
+					//}
+
+				}
+				else if (m_Outputs.GUI_Buff[indexOfGui] == 3) // end of buffer
+				{
+					//fill data of traj1
+					for (i = 0; i < d1[0].TrajLength; i++) 
+					{
+						targetPoints[i] = d1[i];
+					}
+				}
+				
 			}
-			//trajectory.GetCartPos(actualPos, toolParam, getCartPosOut);	
-			trajectory.CIRC(actualPos, trajectory.point2Circ, trajectory.point3Circ, targetPoints);
-			break;
-		case 16: //LIN
-			for (i = 0; i < 6; i++) {
-				actualPos[i] = (actualPos[i] * M_PI) / 180.0; //to radian
-			}
-			//trajectory.GetCartPos(actualPos, toolParam, getCartPosOut);	
-			trajectory.LIN(actualPos, targetPos, trajectory.toolParamGlobal, targetPoints);
+
+
+
+			//for (i = 0; i < 6; i++) {
+			//	actualPos[i] = (actualPos[i] * M_PI) / 180.0; //to radian
+			//}
+			//trajectory.LIN(actualPos, targetPos, trajectory.toolParamGlobal, targetPoints);
 			break;
 		case 98: // Home
 			targetPos[0] = 0;
@@ -241,12 +354,13 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 			break;
 		}
 		while (targetPoints[0].TrajLength > index_point) {
-			for (i = 0; i < 6; i++) {
-				global.set_dataPoint(i, (long)(targetPoints[i].q[index_point] * (1.0 / trajectory.PulsToDegFactor1[i])));
+			for (i = 0; i < 8; i++) {
+				DQPath[i] = targetPoints[i].q[index_point];
 			}
-			/*t1 = targetPoints[0].q[0] *(1.0 / trajectory.PulsToDegFactor1[0]);
-			t2 = targetPoints[1].q[0] *(1.0 / trajectory.PulsToDegFactor1[1]);
-			t3 = targetPoints[2].q[0] *(1.0 / trajectory.PulsToDegFactor1[2]);*/
+			trajectory.Inversekinematic(DQPath, trajectory.QbaseGlobal, trajectory.toolParamGlobal, actualPos, res);//, res);
+			for (i = 0; i < 6; i++) {
+				global.set_dataPoint(i, (long)(res[i] * (1.0 / trajectory.PulsToDegFactor1[i])));
+			}
 			index_point++;
 		}
 		global.GUI_GetNextCMD = 1;

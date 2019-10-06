@@ -117,7 +117,7 @@
               <LBound>0</LBound>
               <Elements>6</Elements>
             </ArrayInfo>
-          </Symbol><Symbol><Name>GUI_StopingJog</Name><BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType></Symbol><Symbol><Name>GUI_JogDirection</Name><BaseType GUID="{18071995-0000-0000-0000-000000000006}">INT</BaseType></Symbol><Symbol><Name>GUI_MSelect</Name><BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType><ArrayInfo><LBound>0</LBound><Elements>6</Elements></ArrayInfo></Symbol><Symbol CreateSymbol="true"><Name>GUI_Ins</Name><BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType><ArrayInfo><LBound>0</LBound><Elements>16</Elements></ArrayInfo></Symbol>
+          </Symbol><Symbol><Name>GUI_StopingJog</Name><BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType></Symbol><Symbol><Name>GUI_JogDirection</Name><BaseType GUID="{18071995-0000-0000-0000-000000000006}">INT</BaseType></Symbol><Symbol><Name>GUI_MSelect</Name><BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType><ArrayInfo><LBound>0</LBound><Elements>6</Elements></ArrayInfo></Symbol><Symbol CreateSymbol="true"><Name>GUI_Ins</Name><BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType><ArrayInfo><LBound>0</LBound><Elements>16</Elements></ArrayInfo></Symbol><Symbol CreateSymbol="true"><Name>GUI_Buff</Name><BaseType GUID="{18071995-0000-0000-0000-00000000000d}">REAL</BaseType><ArrayInfo><LBound>0</LBound><Elements>100</Elements></ArrayInfo></Symbol>
         </DataArea>
         <DataArea>
           <AreaNo AreaType="OutputSrc" CreateSymbols="true">1</AreaNo>
@@ -248,7 +248,7 @@
         <DataArea>
           <AreaNo AreaType="OutputSrc">1</AreaNo>
           <Name>Outputs</Name>
-          <ContextId>1</ContextId>
+          <ContextId>1</ContextId><Symbol><Name>GUI_Buff</Name><BaseType GUID="{18071995-0000-0000-0000-00000000000d}">REAL</BaseType><ArrayInfo><LBound>0</LBound><Elements>100</Elements></ArrayInfo></Symbol>
         </DataArea>
       </DataAreas>
       <InterfacePointers>

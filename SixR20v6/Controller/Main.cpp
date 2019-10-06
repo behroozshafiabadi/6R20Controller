@@ -1,4 +1,4 @@
-﻿///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // Main.cpp
 #include "TcPch.h"
 #pragma hdrstop
@@ -286,6 +286,7 @@ HRESULT CMain::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR cont
 			می تواند فراخوانی شود generator اگر یک بود یعنی
 			مشغول است و درخواست حرکتی رد می شود generator اگر صفر بود یعنی
 			*/
+
 			m_Inputs.GUI_Manager = 100;
 		/*
 		می شود m_Inputs.GUI_Manager = 100; باعث خنثی شدن عملیات صورت گرفته در سیکل های بعدی بر اساس  m_Inputs.GUI_Manager = 100; عبارت
@@ -307,7 +308,11 @@ HRESULT CMain::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR cont
 			*/
 			m_Inputs.GUI_Manager = 100;
 		break;
-	case 16: //LIN
+	//case 12: //CIRC
+	//	if (global.GUI_GetNextCMD == 0)
+	//		m_Inputs.GUI_Manager = 100;
+	//	break;
+	case 16: // CIRC OR LIN
 		if (global.GUI_GetNextCMD == 0)
 			/*
 			درخواست رد می شود
@@ -328,9 +333,6 @@ HRESULT CMain::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR cont
 		for (int i = 0; i < 4; i++) {
 			traj7Seg.point3Circ[i] = static_cast<double>(m_Inputs.GUI_TargetPosition[i]);
 		}
-		/*
-
-		*/
 		m_Inputs.GUI_Manager = 23;
 		break;
 	case 64: // Jog Joint
