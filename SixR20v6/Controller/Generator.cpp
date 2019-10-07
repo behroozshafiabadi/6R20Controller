@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+﻿///////////////////////////////////////////////////////////////////////////////
 // Generator.cpp
 #include "TcPch.h"
 #pragma hdrstop
@@ -76,27 +76,28 @@ END_OBJDATAAREA_MAP()
 
 char GUI_GetNextCMD1;
 Traj7Seg trajectory;
-TrajectoryPointList<double> targetPoints[6];
+TrajectoryPointList<double> targetPoints[8];
 int index_point = 0;
 double actualPos[6];
 double targetPos[8];
 //double toolParam[8] = { 1,0,0,0,0,0,0,0 };
 double t1, t2, t3;
-int i = 0;
+int i = 0, j = 0;
 int indexOfGui = 0;
 double P0[8];
 double P1[8];
 double P2[8];
 double P3[4];
-TrajectoryPointList<double> d1[6];
-TrajectoryPointList<double> d2[6];
-TrajectoryPointList<double> d3[6];
+TrajectoryPointList<double> d1[8];
+TrajectoryPointList<double> d2[8];
+TrajectoryPointList<double> d3[8];
 int indexPre = 0;
 int indexNext = 0;
 bool is_first, is_end;
 double DQCurrentPosition[8];
 double res[6];
 double DQPath[8];
+double LastRadius;
 
 ///////////////////////////////////////////////////////////////////////////////
 CGenerator::CGenerator()
@@ -208,6 +209,48 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 			d1[i].clearAll();
 			d2[i].clearAll();
 			d3[i].clearAll();
+			indexOfGui = 0;
+
+			//temp
+			m_Outputs.GUI_Buff[0] = 1;
+			m_Outputs.GUI_Buff[1] = 820;
+			m_Outputs.GUI_Buff[2] = 0;
+			m_Outputs.GUI_Buff[3] = 989.5;
+			m_Outputs.GUI_Buff[4] = 0;
+			m_Outputs.GUI_Buff[5] = 0;
+			m_Outputs.GUI_Buff[6] = 0;
+			m_Outputs.GUI_Buff[7] = 20;
+			m_Outputs.GUI_Buff[8] = 4;
+			m_Outputs.GUI_Buff[9] = 1;
+			m_Outputs.GUI_Buff[10] = 820;
+			m_Outputs.GUI_Buff[11] = 200;
+			m_Outputs.GUI_Buff[12] = 989.5;
+			m_Outputs.GUI_Buff[13] = 0;
+			m_Outputs.GUI_Buff[14] = 0;
+			m_Outputs.GUI_Buff[15] = 0;
+			m_Outputs.GUI_Buff[16] = 20;
+			m_Outputs.GUI_Buff[17] = 30;
+			m_Outputs.GUI_Buff[18] = 1;
+			m_Outputs.GUI_Buff[19] = 820;
+			m_Outputs.GUI_Buff[20] = 200;
+			m_Outputs.GUI_Buff[21] = 789.5;
+			m_Outputs.GUI_Buff[22] = 0;
+			m_Outputs.GUI_Buff[23] = 0;
+			m_Outputs.GUI_Buff[24] = 0;
+			m_Outputs.GUI_Buff[25] = 20;
+			m_Outputs.GUI_Buff[26] = 30;
+			m_Outputs.GUI_Buff[27] = 1;
+			m_Outputs.GUI_Buff[28] = 820;
+			m_Outputs.GUI_Buff[29] = -200;
+			m_Outputs.GUI_Buff[30] = 789.5;
+			m_Outputs.GUI_Buff[31] = 0;
+			m_Outputs.GUI_Buff[32] = 0;
+			m_Outputs.GUI_Buff[33] = 0;
+			m_Outputs.GUI_Buff[34] = 20;
+			m_Outputs.GUI_Buff[35] = 0;
+			m_Outputs.GUI_Buff[36] = 3;
+			// end of temp
+
 			//targetPos[i] = (double)(global.GUI_TargetPosition[i]);
 		}
 		targetPos[6] = global.GUI_TargetPosition[6];
@@ -247,9 +290,21 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 				// fill d1
 				if (m_Outputs.GUI_Buff[indexOfGui] == 1) // LIN
 				{
-					for (i = 0; i < 8; i++) {
-						P1[i] = m_Outputs.GUI_Buff[++indexOfGui];
+					if (is_first)
+					{
+						for (i = 0; i < 8; i++) {
+							P1[i] = m_Outputs.GUI_Buff[++indexOfGui];
+						}
 					}
+					else
+					{
+						for (i = 0; i < 8; i++) {
+							P1[i] = P2[i];
+						}
+					}
+					
+					LastRadius = P1[7];
+					indexOfGui++;
 					if (m_Outputs.GUI_Buff[indexOfGui] == 3) // END of Buff
 					{
 						is_end = true;
@@ -259,6 +314,7 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 						is_end = false;
 					}
 					trajectory.LIN(DQCurrentPosition, P1, trajectory.toolParamGlobal, is_first, is_end, d1);
+					is_first = false;
 				}
 				else if (m_Outputs.GUI_Buff[indexOfGui] == 2) // CIRC
 				{
@@ -284,16 +340,20 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 						P1[i] = d1[i].q[d1[0].TrajLength-1];
 					}
 					trajectory.LIN(P1, P2, trajectory.toolParamGlobal, is_first, is_end, d2);
-					trajectory.Approximation(d1, d2, P1[7], d3, indexPre, indexNext);
+					trajectory.Approximation(d1, d2, LastRadius, d3, indexPre, indexNext);
 					//fill data of traj1
-					for (i = 0; i < indexPre; i++) // can also copy whole array
-					{
-						targetPoints[i] = d1[i];
+					for (i = 0; i < 8; i++) {
+						for (j = 0; j < indexPre; j++) // can also copy whole array
+						{
+							targetPoints[i].AddPoint(d1[i].q[j],0,0);
+						}
 					}
 					//fill approximation's data
-					for (int i = 0; i < d3[0].TrajLength; i++)
-					{
-						targetPoints[indexPre + i] = d3[i];
+					for (i = 0; i < 8; i++) {
+						for (j = 0; j < d3[0].TrajLength; j++)
+						{
+							targetPoints[i].AddPoint(d3[i].q[j],0,0);
+						}
 					}
 				}
 				else if (m_Outputs.GUI_Buff[indexOfGui] == 2) // CIRC
@@ -316,10 +376,13 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 				else if (m_Outputs.GUI_Buff[indexOfGui] == 3) // end of buffer
 				{
 					//fill data of traj1
-					for (i = 0; i < d1[0].TrajLength; i++) 
-					{
-						targetPoints[i] = d1[i];
+					for (i = 0; i < 8; i++) {
+						for (j = 0; j < d1[0].TrajLength; j++) // can also copy whole array
+						{
+							targetPoints[i].AddPoint(d1[i].q[j], 0, 0);
+						}
 					}
+
 				}
 				
 			}
@@ -346,15 +409,30 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 			//nothing
 			break;
 		}
-		while (targetPoints[0].TrajLength > index_point) {
-			for (i = 0; i < 8; i++) {
-				DQPath[i] = targetPoints[i].q[index_point];
+		/*
+		است که در این قسمت پایانی خروجی همه آنها را به درجه تبدیل می کنیم dq خروجی تمامی توابع حرکتی    
+		*/
+		if (global.GUI_Manager == 16)
+		{
+			while (targetPoints[0].TrajLength > index_point) {
+				for (i = 0; i < 8; i++) {
+					DQPath[i] = targetPoints[i].q[index_point];
+				}
+				trajectory.Inversekinematic(DQPath, trajectory.QbaseGlobal, trajectory.toolParamGlobal, actualPos, res);//, res);
+				for (i = 0; i < 6; i++) {
+					global.set_dataPoint(i, (long)(res[i] * (1.0 / trajectory.PulsToDegFactor1[i])));
+				}
+				index_point++;
 			}
-			trajectory.Inversekinematic(DQPath, trajectory.QbaseGlobal, trajectory.toolParamGlobal, actualPos, res);//, res);
-			for (i = 0; i < 6; i++) {
-				global.set_dataPoint(i, (long)(res[i] * (1.0 / trajectory.PulsToDegFactor1[i])));
+		}
+		else
+		{
+			while (targetPoints[0].TrajLength > index_point) {
+				for (i = 0; i < 6; i++) {
+					global.set_dataPoint(i, (long)(targetPoints[i].q[index_point] * (1.0 / trajectory.PulsToDegFactor1[i])));
+				}
+				index_point++;
 			}
-			index_point++;
 		}
 		global.GUI_GetNextCMD = 1;
 	}

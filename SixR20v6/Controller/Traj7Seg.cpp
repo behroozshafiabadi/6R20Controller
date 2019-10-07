@@ -533,19 +533,19 @@ void Traj7Seg::LIN(double DQCurrentPosition[], double targetPosition[], double t
 	//	tmpVals[7] = targetPosition[7];//mrr
 	double distance = sqrt_(pow_(DQTargetPositionInRef[5] - DQCurrentPositionInRef[5], 2) + pow_(DQTargetPositionInRef[6] - DQCurrentPositionInRef[6], 2) + pow_(DQTargetPositionInRef[7] - DQCurrentPositionInRef[7], 2));
 	TrajectoryPointList<double> pointList;
-	if (targetPosition[7] == 1) // movement is continues
+	if (targetPosition[7] != 0) // movement is continues
 	{
 		if (is_first)
 		{
-			pointList = SingleAxisTraj(TrajectoryPoint(0, 0), TrajectoryPoint(distance, 100), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
+			pointList = SingleAxisTraj(TrajectoryPoint(0, 0), TrajectoryPoint(distance, targetPosition[6]), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
 		}
 		else if (is_end)
 		{
-			pointList = SingleAxisTraj(TrajectoryPoint(0, 100), TrajectoryPoint(distance, 0), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
+			pointList = SingleAxisTraj(TrajectoryPoint(0, targetPosition[6]), TrajectoryPoint(distance, 0), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
 		}
 		else
 		{
-			pointList = SingleAxisTraj(TrajectoryPoint(0, 100), TrajectoryPoint(distance, 100), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
+			pointList = SingleAxisTraj(TrajectoryPoint(0, targetPosition[6]), TrajectoryPoint(distance, targetPosition[6]), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
 		}
 	}
 	else
@@ -867,7 +867,7 @@ double Traj7Seg::normA(double a[], int len) {
 }
 void Traj7Seg::Approximation(TrajectoryPointList<double> da1[], TrajectoryPointList<double> da2[], double radius, TrajectoryPointList<double> out[], int &IndPre, int &IndNext)
 {
-	int ltemp = 0;
+	double ltemp = 0;
 	int m = da2[0].TrajLength - 1;//ld2 - 1;
 	int n = 0;
 	while (ltemp <= radius/* && n != da2[0].TrajLength - 1*/)
