@@ -1633,7 +1633,7 @@
 						<DeviceData>0001053ade85</DeviceData>
 					</Pnp>
 				</AddressInfo>
-				<Image Id="5" AddrType="1" ImageType="3">
+				<Image Id="5" AddrType="2" ImageType="3">
 					<Name>Image</Name>
 				</Image>
 				<Ethernet DeviceDesc="Ethernet (TwinCAT-Intel PCI Ethernet Adapter (Gigab"/>

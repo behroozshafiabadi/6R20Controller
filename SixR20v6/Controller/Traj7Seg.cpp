@@ -533,25 +533,26 @@ void Traj7Seg::LIN(double DQCurrentPosition[], double targetPosition[], double t
 	//	tmpVals[7] = targetPosition[7];//mrr
 	double distance = sqrt_(pow_(DQTargetPositionInRef[5] - DQCurrentPositionInRef[5], 2) + pow_(DQTargetPositionInRef[6] - DQCurrentPositionInRef[6], 2) + pow_(DQTargetPositionInRef[7] - DQCurrentPositionInRef[7], 2));
 	TrajectoryPointList<double> pointList;
-	if (targetPosition[7] != 0) // movement is continues
-	{
-		if (is_first)
-		{
-			pointList = SingleAxisTraj(TrajectoryPoint(0, 0), TrajectoryPoint(distance, targetPosition[6]), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
-		}
-		else if (is_end)
-		{
-			pointList = SingleAxisTraj(TrajectoryPoint(0, targetPosition[6]), TrajectoryPoint(distance, 0), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
-		}
-		else
-		{
-			pointList = SingleAxisTraj(TrajectoryPoint(0, targetPosition[6]), TrajectoryPoint(distance, targetPosition[6]), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
-		}
-	}
-	else
-	{
-		pointList = SingleAxisTraj(TrajectoryPoint(0, 0), TrajectoryPoint(distance, 0), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
-	}
+	pointList = SingleAxisTraj(TrajectoryPoint(0, 0), TrajectoryPoint(distance, 0), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
+	//if (targetPosition[7] != 0) // movement is continues
+	//{
+	//	if (is_first)
+	//	{
+	//		pointList = SingleAxisTraj(TrajectoryPoint(0, 0), TrajectoryPoint(distance, targetPosition[6]), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
+	//	}
+	//	else if (is_end)
+	//	{
+	//		pointList = SingleAxisTraj(TrajectoryPoint(0, targetPosition[6]), TrajectoryPoint(distance, 0), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
+	//	}
+	//	else
+	//	{
+	//		pointList = SingleAxisTraj(TrajectoryPoint(0, targetPosition[6]), TrajectoryPoint(distance, targetPosition[6]), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
+	//	}
+	//}
+	//else
+	//{
+	//	pointList = SingleAxisTraj(TrajectoryPoint(0, 0), TrajectoryPoint(distance, 0), targetPosition[6], 100, 250, .001, .999); //a:5000, j:10000 tmpVals[6]
+	//}
 	//double tmpTeta[6];
 	Quaternion Qend = Quaternion(QuatRPYTargetPosition);
 	Quaternion QCurrent = Quaternion(QuatRPYCurrentPosition);
@@ -868,31 +869,31 @@ double Traj7Seg::normA(double a[], int len) {
 void Traj7Seg::Approximation(TrajectoryPointList<double> da1[], TrajectoryPointList<double> da2[], double radius, TrajectoryPointList<double> out[], int &IndPre, int &IndNext)
 {
 	double ltemp = 0;
-	int m = da2[0].TrajLength - 1;//ld2 - 1;
-	int n = 0;
+	IndPre = da1[0].TrajLength - 1;//ld2 - 1;
+	IndNext = 0;
 	while (ltemp <= radius/* && n != da2[0].TrajLength - 1*/)
 	{
-		ltemp = ltemp + sqrt_(pow_((da1[5].q[m - 1] - da1[5].q[m]), 2) + pow_((da1[6].q[m - 1] - da1[6].q[m]), 2) + pow_((da1[7].q[m - 1] - da1[7].q[m]), 2));
-		m = m - 1;
-		n = n + 1; // number of beginnig data of the second traj
+		ltemp = ltemp + sqrt_(pow_((da1[5].q[IndPre - 1] - da1[5].q[IndPre]), 2) + pow_((da1[6].q[IndPre - 1] - da1[6].q[IndPre]), 2) + pow_((da1[7].q[IndPre - 1] - da1[7].q[IndPre]), 2));
+		IndPre = IndPre - 1;
+		IndNext = IndNext + 1; // number of beginnig data of the second traj
 	}
 
 	// Data in the approximation distance
-	double *X1p = new double[n];
-	double *Y1p = new double[n];
-	double *Z1p = new double[n];
-	double *X2p = new double[n];
-	double *Y2p = new double[n];
-	double *Z2p = new double[n];
+	double *X1p = new double[IndNext];
+	double *Y1p = new double[IndNext];
+	double *Z1p = new double[IndNext];
+	double *X2p = new double[IndNext];
+	double *Y2p = new double[IndNext];
+	double *Z2p = new double[IndNext];
 	int index = 0;
-	for (int i = da1[0].TrajLength - n; i < da1[0].TrajLength; i++)
+	for (int i = IndPre; i < da1[0].TrajLength; i++)
 	{
 		X1p[index] = da1[5].q[i];
 		Y1p[index] = da1[6].q[i];
 		Z1p[index] = da1[7].q[i];
 		index++;
 	}
-	for (int i = 0; i < n; i++)
+	for (int i = 0; i < IndNext; i++)
 	{
 		X2p[i] = da2[5].q[i];
 		Y2p[i] = da2[6].q[i];
@@ -901,40 +902,38 @@ void Traj7Seg::Approximation(TrajectoryPointList<double> da1[], TrajectoryPointL
 
 	// Calculates length of the trajectory and ratios
 	double L1 = sqrt_(pow_((X1p[da1[0].TrajLength - 1] - X1p[0]), 2) + pow_((Y1p[da1[0].TrajLength - 1] - Y1p[0]), 2) + pow_((Z1p[da1[0].TrajLength - 1] - Z1p[0]), 2));
-	double *ratiol = new double[da1[0].TrajLength];
-	IndNext = n;
-	IndPre = da1[0].TrajLength - n;
-	for (int i = 0; i < n; i++)
+	double *ratiol = new double[IndNext];
+	for (int i = 0; i < IndNext; i++)
 	{
 		double L = sqrt_(pow_((X1p[i] - X1p[0]), 2) + pow_((Y1p[i] - Y1p[0]), 2) + pow_((Z1p[i] - Z1p[0]), 2));
 		ratiol[i] = L / L1;
 	}
 
 	// Connect lines and derive the points
-	double **P = new double*[n]; // row  = n
-	for (int i = 0; i < n; i++)
+	double **P = new double*[IndNext]; // row  = n
+	for (int i = 0; i < IndNext; i++)
 	{
 		P[i] = new double[3]; // column = 3
 	}
 
 	double current[4] = {
-		da1[0].q[da1[0].TrajLength - n - 1],
-		da1[1].q[da1[0].TrajLength - n - 1],
-		da1[2].q[da1[0].TrajLength - n - 1],
-		da1[3].q[da1[0].TrajLength - n - 1] };
+		da1[0].q[da1[0].TrajLength - IndNext - 1],
+		da1[1].q[da1[0].TrajLength - IndNext - 1],
+		da1[2].q[da1[0].TrajLength - IndNext - 1],
+		da1[3].q[da1[0].TrajLength - IndNext - 1] };
 
 	double end[4] = {
-		da2[0].q[n - 1],
-		da2[1].q[n - 1],
-		da2[2].q[n - 1],
-		da2[3].q[n - 1] };
+		da2[0].q[IndNext - 1],
+		da2[1].q[IndNext - 1],
+		da2[2].q[IndNext - 1],
+		da2[3].q[IndNext - 1] };
 	Quaternion Qend = Quaternion(current);
 	Quaternion QCurrent = Quaternion(end);
 	Quaternion Qnext;
 	slerp s;
-	for (int i = 0; i < n; i++)
+	for (int i = 0; i < IndNext; i++)
 	{
-		double L = sqrt_(pow_((X2p[i] - X1p[i]), 2) + pow_((Y2p[i] - Y2p[i]), 2) + pow_((Z2p[i] - Z2p[i]), 2));
+		double L = sqrt_(pow_((X2p[i] - X1p[i]), 2) + pow_((Y2p[i] - Y1p[i]), 2) + pow_((Z2p[i] - Z1p[i]), 2));
 		double unit_vec[3] = { (X2p[i] - X1p[i]) / L, (Y2p[i] - Y1p[i]) / L, (Z2p[i] - Z1p[i]) / L };
 		P[i][0] = (unit_vec[0] * ratiol[i] * L) + X1p[i];
 		P[i][1] = (unit_vec[1] * ratiol[i] * L) + Y1p[i];
@@ -950,7 +949,7 @@ void Traj7Seg::Approximation(TrajectoryPointList<double> da1[], TrajectoryPointL
 	}
 	//Q = SLERP(Q1(end - n + 1, :), Q2(n, :), ratiol);
 
-	for (int i = 0; i < n; i++)
+	for (int i = 0; i < IndNext; i++)
 	{
 		out[5].AddPoint(P[i][0], 0, 0);
 		out[6].AddPoint(P[i][1], 0, 0);

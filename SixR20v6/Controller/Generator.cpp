@@ -98,6 +98,7 @@ double DQCurrentPosition[8];
 double res[6];
 double DQPath[8];
 double LastRadius;
+bool MovementContinuous = false;
 
 ///////////////////////////////////////////////////////////////////////////////
 CGenerator::CGenerator()
@@ -220,7 +221,7 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 			m_Outputs.GUI_Buff[5] = 0;
 			m_Outputs.GUI_Buff[6] = 0;
 			m_Outputs.GUI_Buff[7] = 20;
-			m_Outputs.GUI_Buff[8] = 4;
+			m_Outputs.GUI_Buff[8] = 3;
 			m_Outputs.GUI_Buff[9] = 1;
 			m_Outputs.GUI_Buff[10] = 820;
 			m_Outputs.GUI_Buff[11] = 200;
@@ -230,7 +231,7 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 			m_Outputs.GUI_Buff[15] = 0;
 			m_Outputs.GUI_Buff[16] = 20;
 			m_Outputs.GUI_Buff[17] = 30;
-			m_Outputs.GUI_Buff[18] = 1;
+			m_Outputs.GUI_Buff[18] = 3;
 			m_Outputs.GUI_Buff[19] = 820;
 			m_Outputs.GUI_Buff[20] = 200;
 			m_Outputs.GUI_Buff[21] = 789.5;
@@ -270,6 +271,7 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 		//	trajectory.CIRC(actualPos, trajectory.point2Circ, trajectory.point3Circ, targetPoints);
 		//	break;
 		case 16: //LIN or CIRC
+			MovementContinuous = true;
 			while (m_Outputs.GUI_Buff[indexOfGui] != 3) {
 				//if first and calculation p0
 				if (indexOfGui == 0) // first
@@ -285,6 +287,7 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 					is_first = false;
 					for (i = 0; i < 8; i++) {
 						DQCurrentPosition[i] = d2[i].q[indexNext]; // degree
+						d2[i].clearAll();
 					}
 				}
 				// fill d1
@@ -295,6 +298,7 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 						for (i = 0; i < 8; i++) {
 							P1[i] = m_Outputs.GUI_Buff[++indexOfGui];
 						}
+						indexOfGui++;
 					}
 					else
 					{
@@ -304,7 +308,7 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 					}
 					
 					LastRadius = P1[7];
-					indexOfGui++;
+					
 					if (m_Outputs.GUI_Buff[indexOfGui] == 3) // END of Buff
 					{
 						is_end = true;
@@ -336,27 +340,32 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 					for (i = 0; i < 8; i++) {
 						P2[i] = m_Outputs.GUI_Buff[++indexOfGui];
 					}
+					indexOfGui++;
 					for (i = 0; i < 8; i++) {
 						P1[i] = d1[i].q[d1[0].TrajLength-1];
 					}
 					trajectory.LIN(P1, P2, trajectory.toolParamGlobal, is_first, is_end, d2);
-					trajectory.Approximation(d1, d2, LastRadius, d3, indexPre, indexNext);
+					trajectory.Approximation(d1, d2, LastRadius, d3, indexPre, indexNext); 
+
 					//fill data of traj1
 					for (i = 0; i < 8; i++) {
-						for (j = 0; j < indexPre; j++) // can also copy whole array
+						for (j = 0; j <indexPre; j++) // can also copy whole array
 						{
 							targetPoints[i].AddPoint(d1[i].q[j],0,0);
 						}
+						d1[i].clearAll(); 
 					}
+
 					//fill approximation's data
-					for (i = 0; i < 8; i++) {
-						for (j = 0; j < d3[0].TrajLength; j++)
+					for (i = 0; i < 8; i++) { 
+						for (j = 0; j <indexNext; j++)
 						{
 							targetPoints[i].AddPoint(d3[i].q[j],0,0);
 						}
+						d3[i].clearAll();
 					}
 				}
-				else if (m_Outputs.GUI_Buff[indexOfGui] == 2) // CIRC
+				if (m_Outputs.GUI_Buff[indexOfGui] == 2) // CIRC
 				{
 					// call circ
 
@@ -373,13 +382,13 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 					//}
 
 				}
-				else if (m_Outputs.GUI_Buff[indexOfGui] == 3) // end of buffer
+				if (m_Outputs.GUI_Buff[indexOfGui] == 3) // end of buffer
 				{
 					//fill data of traj1
 					for (i = 0; i < 8; i++) {
-						for (j = 0; j < d1[0].TrajLength; j++) // can also copy whole array
+						for (j = indexNext; j < d2[0].TrajLength; j++) // can also copy whole array
 						{
-							targetPoints[i].AddPoint(d1[i].q[j], 0, 0);
+							targetPoints[i].AddPoint(d2[i].q[j], 0, 0);
 						}
 					}
 
@@ -412,15 +421,16 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 		/*
 		است که در این قسمت پایانی خروجی همه آنها را به درجه تبدیل می کنیم dq خروجی تمامی توابع حرکتی    
 		*/
-		if (global.GUI_Manager == 16)
+		if (MovementContinuous)
 		{
+			MovementContinuous = false;
 			while (targetPoints[0].TrajLength > index_point) {
 				for (i = 0; i < 8; i++) {
 					DQPath[i] = targetPoints[i].q[index_point];
 				}
 				trajectory.Inversekinematic(DQPath, trajectory.QbaseGlobal, trajectory.toolParamGlobal, actualPos, res);//, res);
 				for (i = 0; i < 6; i++) {
-					global.set_dataPoint(i, (long)(res[i] * (1.0 / trajectory.PulsToDegFactor1[i])));
+					global.set_dataPoint(i, (long)(res[i] *  (180.0 / M_PI)* (1.0 / trajectory.PulsToDegFactor1[i])));
 				}
 				index_point++;
 			}
