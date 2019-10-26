@@ -23,7 +23,7 @@
 		</System>
 		<Cpp>
 			<Project GUID="{FD8DEF26-A9D7-49EE-B2D8-C176EB711C21}" Name="Controller" PrjFilePath="Controller\Controller.vcxproj" TmcFilePath="Controller\Controller.tmc">
-				<Instance Id="#x01010010" KeepUnrestoredLinks="2">
+				<Instance Id="#x01010010">
 					<Name>Controller_Obj1 (Main)</Name>
 					<TmcDesc GUID="{BD5E1BDE-AEAC-4BC0-A8E9-B6F53DEC86C2}">
 						<Name>Main</Name>
@@ -115,7 +115,7 @@
 								<AreaNo AreaType="InputDst" CreateSymbols="true">0</AreaNo>
 								<Name>Inputs</Name>
 								<ContextId>1</ContextId>
-								<ByteSize>482</ByteSize>
+								<ByteSize>85</ByteSize>
 								<Symbol>
 									<Name>GUI_Manager</Name>
 									<BitSize>8</BitSize>
@@ -191,21 +191,23 @@
 									<BitOffs>640</BitOffs>
 								</Symbol>
 								<Symbol CreateSymbol="true">
-									<Name>GUI_Buff</Name>
-									<BitSize>3200</BitSize>
-									<BaseType GUID="{18071995-0000-0000-0000-00000000000D}">REAL</BaseType>
-									<ArrayInfo>
-										<LBound>0</LBound>
-										<Elements>100</Elements>
-									</ArrayInfo>
+									<Name>FeedOverride</Name>
+									<BitSize>16</BitSize>
+									<BaseType GUID="{18071995-0000-0000-0000-000000000006}">INT</BaseType>
 									<BitOffs>656</BitOffs>
+								</Symbol>
+								<Symbol CreateSymbol="true">
+									<Name>GUI_Pause</Name>
+									<BitSize>8</BitSize>
+									<BaseType GUID="{18071995-0000-0000-0000-000000000003}">SINT</BaseType>
+									<BitOffs>672</BitOffs>
 								</Symbol>
 							</DataArea>
 							<DataArea>
 								<AreaNo AreaType="OutputSrc" CreateSymbols="true">1</AreaNo>
 								<Name>Outputs</Name>
 								<ContextId>1</ContextId>
-								<ByteSize>64</ByteSize>
+								<ByteSize>464</ByteSize>
 								<Symbol>
 									<Name>GUI_GetNextCMD</Name>
 									<BitSize>8</BitSize>
@@ -257,6 +259,16 @@
 										<Elements>16</Elements>
 									</ArrayInfo>
 									<BitOffs>496</BitOffs>
+								</Symbol>
+								<Symbol CreateSymbol="true">
+									<Name>Gui_Buff</Name>
+									<BitSize>3200</BitSize>
+									<BaseType GUID="{18071995-0000-0000-0000-00000000000D}">REAL</BaseType>
+									<ArrayInfo>
+										<LBound>0</LBound>
+										<Elements>100</Elements>
+									</ArrayInfo>
+									<BitOffs>512</BitOffs>
 								</Symbol>
 							</DataArea>
 						</DataAreas>
@@ -404,7 +416,7 @@
 								<AreaNo AreaType="InputDst">0</AreaNo>
 								<Name>Inputs</Name>
 								<ContextId>1</ContextId>
-								<ByteSize>12</ByteSize>
+								<ByteSize>412</ByteSize>
 								<Symbol CreateSymbol="true">
 									<Name>ErrorCodes</Name>
 									<BitSize>96</BitSize>
@@ -415,22 +427,22 @@
 									</ArrayInfo>
 									<BitOffs>0</BitOffs>
 								</Symbol>
-							</DataArea>
-							<DataArea>
-								<AreaNo AreaType="OutputSrc">1</AreaNo>
-								<Name>Outputs</Name>
-								<ContextId>1</ContextId>
-								<ByteSize>400</ByteSize>
-								<Symbol>
-									<Name>GUI_Buff</Name>
+								<Symbol CreateSymbol="true">
+									<Name>Gui_Buff</Name>
 									<BitSize>3200</BitSize>
 									<BaseType GUID="{18071995-0000-0000-0000-00000000000D}">REAL</BaseType>
 									<ArrayInfo>
 										<LBound>0</LBound>
 										<Elements>100</Elements>
 									</ArrayInfo>
-									<BitOffs>0</BitOffs>
+									<BitOffs>96</BitOffs>
 								</Symbol>
+							</DataArea>
+							<DataArea>
+								<AreaNo AreaType="OutputSrc">1</AreaNo>
+								<Name>Outputs</Name>
+								<ContextId>1</ContextId>
+								<ByteSize>0</ByteSize>
 							</DataArea>
 						</DataAreas>
 						<InterfacePointers>
@@ -490,7 +502,7 @@
 			</Project>
 		</Cpp>
 		<Io>
-			<Device DevType="111" DevFlags="#x0003" AmsPort="28673" AmsNetId="172.21.50.104.2.1" RemoteName="Device 1 (EtherCAT)" Id="1">
+			<Device DevType="111" DevFlags="#x0003" AmsPort="28673" AmsNetId="5.58.222.132.2.1" RemoteName="Device 1 (EtherCAT)" Id="1">
 				<Name>Device 1 (EtherCAT)</Name>
 				<AddressInfo>
 					<Ccat>
@@ -896,7 +908,7 @@
 				</Box>
 				<EtherCAT/>
 			</Device>
-			<Device DevType="111" DevFlags="#x0003" AmsPort="28676" AmsNetId="172.21.50.104.5.1" RemoteName="Device 4 (EtherCAT)" Id="4">
+			<Device DevType="111" DevFlags="#x0003" AmsPort="28676" AmsNetId="5.58.222.132.5.1" RemoteName="Device 4 (EtherCAT)" Id="4">
 				<Name>Device 4 (EtherCAT)</Name>
 				<AddressInfo>
 					<Pnp>
@@ -1624,7 +1636,7 @@
 				</Box>
 				<EtherCAT DeviceDesc="Ethernet 2 (TwinCAT-Intel PCI Ethernet Adapter (Gig" DcSyncMode="3"/>
 			</Device>
-			<Device DevType="138" AmsPort="28674" AmsNetId="172.21.50.104.3.1" RemoteName="Device 2 (RT-Ethernet Protocol)" Id="2">
+			<Device DevType="138" AmsPort="28674" AmsNetId="5.58.222.132.3.1" RemoteName="Device 2 (RT-Ethernet Protocol)" Id="2">
 				<Name>Device 2 (RT-Ethernet Protocol)</Name>
 				<AddressInfo>
 					<Pnp>
@@ -1633,7 +1645,7 @@
 						<DeviceData>0001053ade85</DeviceData>
 					</Pnp>
 				</AddressInfo>
-				<Image Id="5" AddrType="2" ImageType="3">
+				<Image Id="5" AddrType="1" ImageType="3">
 					<Name>Image</Name>
 				</Image>
 				<Ethernet DeviceDesc="Ethernet (TwinCAT-Intel PCI Ethernet Adapter (Gigab"/>
@@ -1664,6 +1676,7 @@
 		<MappingInfo Identifier="{00000000-0010-0304-1000-010110000403}" Id="#x02030010"/>
 		<OwnerA Name="TIID^Device 1 (EtherCAT)">
 			<OwnerB Name="TIXC^Controller^Controller_Obj1 (Main)">
+				<Link VarA="Term 5 (EK1200)^Term 6 (EL2809)^Channel 10^Output" VarB="Outputs^GUI_Outs[10]"/>
 				<Link VarA="Term 5 (EK1200)^Term 6 (EL2809)^Channel 7^Output" VarB="Outputs^GUI_Outs[7]"/>
 			</OwnerB>
 		</OwnerA>
@@ -1711,7 +1724,7 @@
 		</OwnerA>
 		<OwnerA Name="TIXC^Controller^Controller Instance 2">
 			<OwnerB Name="TIXC^Controller^Controller_Obj1 (Main)">
-				<Link VarA="Outputs^GUI_Buff" VarB="Inputs^GUI_Buff"/>
+				<Link VarA="Inputs^Gui_Buff" VarB="Outputs^Gui_Buff"/>
 			</OwnerB>
 		</OwnerA>
 	</Mappings>

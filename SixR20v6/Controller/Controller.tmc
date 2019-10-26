@@ -117,7 +117,7 @@
               <LBound>0</LBound>
               <Elements>6</Elements>
             </ArrayInfo>
-          </Symbol><Symbol><Name>GUI_StopingJog</Name><BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType></Symbol><Symbol><Name>GUI_JogDirection</Name><BaseType GUID="{18071995-0000-0000-0000-000000000006}">INT</BaseType></Symbol><Symbol><Name>GUI_MSelect</Name><BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType><ArrayInfo><LBound>0</LBound><Elements>6</Elements></ArrayInfo></Symbol><Symbol CreateSymbol="true"><Name>GUI_Ins</Name><BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType><ArrayInfo><LBound>0</LBound><Elements>16</Elements></ArrayInfo></Symbol><Symbol CreateSymbol="true"><Name>GUI_Buff</Name><BaseType GUID="{18071995-0000-0000-0000-00000000000d}">REAL</BaseType><ArrayInfo><LBound>0</LBound><Elements>100</Elements></ArrayInfo></Symbol>
+          </Symbol><Symbol><Name>GUI_StopingJog</Name><BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType></Symbol><Symbol><Name>GUI_JogDirection</Name><BaseType GUID="{18071995-0000-0000-0000-000000000006}">INT</BaseType></Symbol><Symbol><Name>GUI_MSelect</Name><BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType><ArrayInfo><LBound>0</LBound><Elements>6</Elements></ArrayInfo></Symbol><Symbol CreateSymbol="true"><Name>GUI_Ins</Name><BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType><ArrayInfo><LBound>0</LBound><Elements>16</Elements></ArrayInfo></Symbol><Symbol CreateSymbol="true"><Name>FeedOverride</Name><BaseType GUID="{18071995-0000-0000-0000-000000000006}">INT</BaseType></Symbol><Symbol CreateSymbol="true"><Name>GUI_Pause</Name><BaseType GUID="{18071995-0000-0000-0000-000000000003}">SINT</BaseType></Symbol>
         </DataArea>
         <DataArea>
           <AreaNo AreaType="OutputSrc" CreateSymbols="true">1</AreaNo>
@@ -154,7 +154,7 @@
           <Symbol>
             <Name>ModOfOperation</Name>
             <BaseType GUID="{18071995-0000-0000-0000-000000000003}">SINT</BaseType>
-          </Symbol><Symbol><Name>GUI_Outs</Name><BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType><ArrayInfo><LBound>0</LBound><Elements>16</Elements></ArrayInfo></Symbol>
+          </Symbol><Symbol><Name>GUI_Outs</Name><BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType><ArrayInfo><LBound>0</LBound><Elements>16</Elements></ArrayInfo></Symbol><Symbol CreateSymbol="true"><Name>Gui_Buff</Name><BaseType GUID="{18071995-0000-0000-0000-00000000000d}">REAL</BaseType><ArrayInfo><LBound>0</LBound><Elements>100</Elements></ArrayInfo></Symbol>
         </DataArea>
       </DataAreas>
       <InterfacePointers>
@@ -243,12 +243,12 @@
         <DataArea>
           <AreaNo AreaType="InputDst">0</AreaNo>
           <Name>Inputs</Name>
-          <ContextId>1</ContextId><Symbol CreateSymbol="true"><Name>ErrorCodes</Name><BaseType GUID="{18071995-0000-0000-0000-000000000005}">UINT</BaseType><ArrayInfo><LBound>0</LBound><Elements>6</Elements></ArrayInfo><Properties></Properties></Symbol>
+          <ContextId>1</ContextId><Symbol CreateSymbol="true"><Name>ErrorCodes</Name><BaseType GUID="{18071995-0000-0000-0000-000000000005}">UINT</BaseType><ArrayInfo><LBound>0</LBound><Elements>6</Elements></ArrayInfo><Properties></Properties></Symbol><Symbol CreateSymbol="true"><Name>Gui_Buff</Name><BaseType GUID="{18071995-0000-0000-0000-00000000000d}">REAL</BaseType><ArrayInfo><LBound>0</LBound><Elements>100</Elements></ArrayInfo></Symbol>
         </DataArea>
         <DataArea>
           <AreaNo AreaType="OutputSrc">1</AreaNo>
           <Name>Outputs</Name>
-          <ContextId>1</ContextId><Symbol><Name>GUI_Buff</Name><BaseType GUID="{18071995-0000-0000-0000-00000000000d}">REAL</BaseType><ArrayInfo><LBound>0</LBound><Elements>100</Elements></ArrayInfo></Symbol>
+          <ContextId>1</ContextId>
         </DataArea>
       </DataAreas>
       <InterfacePointers>

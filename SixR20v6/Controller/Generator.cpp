@@ -206,54 +206,19 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 		for (i = 0; i < 6; i++) {
 			actualPos[i] = (static_cast<double>(global.ActualPosition[i])) * trajectory.PulsToDegFactor1[i];
 			targetPos[i] = /*actualPos[i] +*/ (global.GUI_TargetPosition[i]);
+		}
+		for (i = 0; i < 8; i++) {
 			targetPoints[i].clearAll();
 			d1[i].clearAll();
 			d2[i].clearAll();
 			d3[i].clearAll();
-			indexOfGui = 0;
+		}
+		indexOfGui = 0;
 
-			//temp
-			m_Outputs.GUI_Buff[0] = 1;
-			m_Outputs.GUI_Buff[1] = 820;
-			m_Outputs.GUI_Buff[2] = 0;
-			m_Outputs.GUI_Buff[3] = 989.5;
-			m_Outputs.GUI_Buff[4] = 0;
-			m_Outputs.GUI_Buff[5] = 0;
-			m_Outputs.GUI_Buff[6] = 0;
-			m_Outputs.GUI_Buff[7] = 20;
-			m_Outputs.GUI_Buff[8] = 3;
-			m_Outputs.GUI_Buff[9] = 1;
-			m_Outputs.GUI_Buff[10] = 820;
-			m_Outputs.GUI_Buff[11] = 200;
-			m_Outputs.GUI_Buff[12] = 989.5;
-			m_Outputs.GUI_Buff[13] = 0;
-			m_Outputs.GUI_Buff[14] = 0;
-			m_Outputs.GUI_Buff[15] = 0;
-			m_Outputs.GUI_Buff[16] = 20;
-			m_Outputs.GUI_Buff[17] = 30;
-			m_Outputs.GUI_Buff[18] = 3;
-			m_Outputs.GUI_Buff[19] = 820;
-			m_Outputs.GUI_Buff[20] = 200;
-			m_Outputs.GUI_Buff[21] = 789.5;
-			m_Outputs.GUI_Buff[22] = 0;
-			m_Outputs.GUI_Buff[23] = 0;
-			m_Outputs.GUI_Buff[24] = 0;
-			m_Outputs.GUI_Buff[25] = 20;
-			m_Outputs.GUI_Buff[26] = 30;
-			m_Outputs.GUI_Buff[27] = 1;
-			m_Outputs.GUI_Buff[28] = 820;
-			m_Outputs.GUI_Buff[29] = -200;
-			m_Outputs.GUI_Buff[30] = 789.5;
-			m_Outputs.GUI_Buff[31] = 0;
-			m_Outputs.GUI_Buff[32] = 0;
-			m_Outputs.GUI_Buff[33] = 0;
-			m_Outputs.GUI_Buff[34] = 20;
-			m_Outputs.GUI_Buff[35] = 0;
-			m_Outputs.GUI_Buff[36] = 3;
-			// end of temp
+			
 
 			//targetPos[i] = (double)(global.GUI_TargetPosition[i]);
-		}
+		
 		targetPos[6] = global.GUI_TargetPosition[6];
 		targetPos[7] = global.GUI_TargetPosition[7];
 		switch (global.GUI_Manager)
@@ -272,7 +237,7 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 		//	break;
 		case 16: //LIN or CIRC
 			MovementContinuous = true;
-			while (m_Outputs.GUI_Buff[indexOfGui] != 3) {
+			while (m_Inputs.Gui_Buff[indexOfGui] != 3) {
 				//if first and calculation p0
 				if (indexOfGui == 0) // first
 				{
@@ -291,12 +256,12 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 					}
 				}
 				// fill d1
-				if (m_Outputs.GUI_Buff[indexOfGui] == 1) // LIN
+				if (m_Inputs.Gui_Buff[indexOfGui] == 1) // LIN
 				{
 					if (is_first)
 					{
 						for (i = 0; i < 8; i++) {
-							P1[i] = m_Outputs.GUI_Buff[++indexOfGui];
+							P1[i] = m_Inputs.Gui_Buff[++indexOfGui];
 						}
 						indexOfGui++;
 					}
@@ -309,7 +274,7 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 					
 					LastRadius = P1[7];
 					
-					if (m_Outputs.GUI_Buff[indexOfGui] == 3) // END of Buff
+					if (m_Inputs.Gui_Buff[indexOfGui] == 3) // END of Buff
 					{
 						is_end = true;
 					}
@@ -320,7 +285,7 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 					trajectory.LIN(DQCurrentPosition, P1, trajectory.toolParamGlobal, is_first, is_end, d1);
 					is_first = false;
 				}
-				else if (m_Outputs.GUI_Buff[indexOfGui] == 2) // CIRC
+				else if (m_Inputs.Gui_Buff[indexOfGui] == 2) // CIRC
 				{
 					//for (i = 0; i < 8; i++) {
 					//	P1[i] = m_Outputs.GUI_Buff[++indexOfGui]; // xyz abc,  f, aproximation radius
@@ -335,18 +300,20 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 					//trajectory.CIRC(P0, P1, P3, d1);
 				}
 				// fill d2
-				if (m_Outputs.GUI_Buff[indexOfGui] == 1) // LIN
+				if (m_Inputs.Gui_Buff[indexOfGui] == 1) // LIN
 				{
 					for (i = 0; i < 8; i++) {
-						P2[i] = m_Outputs.GUI_Buff[++indexOfGui];
+						P2[i] = m_Inputs.Gui_Buff[++indexOfGui];
 					}
 					indexOfGui++;
 					for (i = 0; i < 8; i++) {
+						/*
+					جایگزین شود ؟ d1 آیا باید با  
+						*/
 						P1[i] = d1[i].q[d1[0].TrajLength-1];
 					}
 					trajectory.LIN(P1, P2, trajectory.toolParamGlobal, is_first, is_end, d2);
 					trajectory.Approximation(d1, d2, LastRadius, d3, indexPre, indexNext); 
-
 					//fill data of traj1
 					for (i = 0; i < 8; i++) {
 						for (j = 0; j <indexPre; j++) // can also copy whole array
@@ -365,7 +332,7 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 						d3[i].clearAll();
 					}
 				}
-				if (m_Outputs.GUI_Buff[indexOfGui] == 2) // CIRC
+				if (m_Inputs.Gui_Buff[indexOfGui] == 2) // CIRC
 				{
 					// call circ
 
@@ -382,7 +349,19 @@ HRESULT CGenerator::CycleUpdate(ITcTask* ipTask, ITcUnknown* ipCaller, ULONG_PTR
 					//}
 
 				}
-				if (m_Outputs.GUI_Buff[indexOfGui] == 3) // end of buffer
+				if (m_Inputs.Gui_Buff[indexOfGui] == 3 && indexOfGui == 9) // Just One LIN
+				{
+					//fill data of traj1
+					for (i = 0; i < 8; i++) {
+						for (j = 0; j < d1[0].TrajLength; j++) // can also copy whole array
+						{
+							targetPoints[i].AddPoint(d1[i].q[j], 0, 0);
+						}
+					}
+
+				}
+
+				if (m_Inputs.Gui_Buff[indexOfGui] == 3) // end of buffer
 				{
 					//fill data of traj1
 					for (i = 0; i < 8; i++) {

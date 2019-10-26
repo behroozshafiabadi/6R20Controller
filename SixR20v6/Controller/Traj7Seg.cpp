@@ -901,7 +901,7 @@ void Traj7Seg::Approximation(TrajectoryPointList<double> da1[], TrajectoryPointL
 	}
 
 	// Calculates length of the trajectory and ratios
-	double L1 = sqrt_(pow_((X1p[da1[0].TrajLength - 1] - X1p[0]), 2) + pow_((Y1p[da1[0].TrajLength - 1] - Y1p[0]), 2) + pow_((Z1p[da1[0].TrajLength - 1] - Z1p[0]), 2));
+	double L1 = sqrt_(pow_((X1p[IndNext - 1] - X1p[0]), 2) + pow_((Y1p[IndNext - 1] - Y1p[0]), 2) + pow_((Z1p[IndNext - 1] - Z1p[0]), 2));
 	double *ratiol = new double[IndNext];
 	for (int i = 0; i < IndNext; i++)
 	{
@@ -917,18 +917,17 @@ void Traj7Seg::Approximation(TrajectoryPointList<double> da1[], TrajectoryPointL
 	}
 
 	double current[4] = {
-		da1[0].q[da1[0].TrajLength - IndNext - 1],
-		da1[1].q[da1[0].TrajLength - IndNext - 1],
-		da1[2].q[da1[0].TrajLength - IndNext - 1],
-		da1[3].q[da1[0].TrajLength - IndNext - 1] };
-
+		da1[0].q[IndPre],
+		da1[1].q[IndPre],
+		da1[2].q[IndPre],
+		da1[3].q[IndPre] };
+	Quaternion QCurrent = Quaternion(current);
 	double end[4] = {
 		da2[0].q[IndNext - 1],
 		da2[1].q[IndNext - 1],
 		da2[2].q[IndNext - 1],
 		da2[3].q[IndNext - 1] };
-	Quaternion Qend = Quaternion(current);
-	Quaternion QCurrent = Quaternion(end);
+	Quaternion Qend = Quaternion(end);
 	Quaternion Qnext;
 	slerp s;
 	for (int i = 0; i < IndNext; i++)
@@ -940,12 +939,35 @@ void Traj7Seg::Approximation(TrajectoryPointList<double> da1[], TrajectoryPointL
 		P[i][2] = (unit_vec[2] * ratiol[i] * L) + Z1p[i];
 
 		// Rotation approximation
-		s.Slerp1(QCurrent, Qend, Qnext, ratiol[i]);
+		/*s.Slerp1(QCurrent, Qend, Qnext, ratiol[i]);
 		out[0].AddPoint(Qnext.u.x, 0, 0);
 		out[1].AddPoint(Qnext.u.y, 0, 0);
 		out[2].AddPoint(Qnext.u.z, 0, 0);
 		out[3].AddPoint(Qnext.w, 0, 0);
+		out[4].AddPoint(0, 0, 0);*/
+	}
+	for (int i = IndPre; i < da1[0].TrajLength; i+=2)
+	{
+		out[0].AddPoint(da1[0].q[i], 0, 0);
+		out[1].AddPoint(da1[1].q[i], 0, 0);
+		out[2].AddPoint(da1[2].q[i], 0, 0);
+		out[3].AddPoint(da1[3].q[i], 0, 0);
+		out[4].AddPoint(0, 0, 0); 
+	}
+	for (int i = 0; i < IndNext; i += 2)
+	{
+		out[0].AddPoint(da2[0].q[i], 0, 0);
+		out[1].AddPoint(da2[1].q[i], 0, 0);
+		out[2].AddPoint(da2[2].q[i], 0, 0);
+		out[3].AddPoint(da2[3].q[i], 0, 0);
 		out[4].AddPoint(0, 0, 0);
+	}
+	while (out[0].TrajLength < IndNext)
+	{
+		out[0].AddPoint(da2[0].q[IndNext - 1], 0, 0);
+		out[1].AddPoint(da2[1].q[IndNext - 1], 0, 0);
+		out[2].AddPoint(da2[2].q[IndNext - 1], 0, 0);
+		out[3].AddPoint(da2[3].q[IndNext - 1], 0, 0);
 	}
 	//Q = SLERP(Q1(end - n + 1, :), Q2(n, :), ratiol);
 

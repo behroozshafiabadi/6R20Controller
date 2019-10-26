@@ -21,6 +21,7 @@ public:
 	static double toolParamGlobal[8];// = { 1,0,0,0,0,0,0,0 };
 	static double point2Circ[8];
 	static double point3Circ[4];
+	static int feed;
 
 	double QEndEffector[8] = { 1, 0,0,0,0 , L[5], 0 ,0 };//QT
 	double DriveEncoderRes = 524287;
